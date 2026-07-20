@@ -25,7 +25,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="flex h-screen w-[290px] flex-col justify-between bg-[#111111] px-7 py-8 text-white">
+    <aside className="flex h-screen w-[275px] flex-col justify-between bg-[#111111] px-4 py-5 text-white">
 
       {/* Logo */}
       <div>

@@ -1,11 +1,18 @@
-"use client";
+import DashboardHeader from "@/components/admin/dashboard/DashboardHeader";
+import WelcomeCard from "@/components/admin/dashboard/WelcomeCard";
+import StatisticsSection from "@/components/admin/dashboard/StatisticsSection";
+import ActivityTable from "@/components/admin/dashboard/ActivityTable";
 
 export default function DashboardView() {
   return (
     <>
-      <h1 className="text-3xl font-bold">
-        Dashboard
-      </h1>
+      <DashboardHeader />
+
+      <WelcomeCard />
+
+      <StatisticsSection />
+
+      <ActivityTable />
     </>
   );
 }
