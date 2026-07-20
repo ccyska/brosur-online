@@ -67,12 +67,11 @@ export default function LoginView() {
         <div className="text-center">
 
           <h1 className="text-4xl font-bold text-[#8B5A00]">
-            E-Brosur Online
+            Login Admin 
           </h1>
 
           <p className="mt-3 text-gray-500">
-            Infrastructure & Brochure
-            Management Suite
+            Brosur Online Naratel
           </p>
 
         </div>

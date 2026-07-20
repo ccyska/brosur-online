@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   FileText,
   LogOut,
-  BookOpen,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -14,48 +13,33 @@ export default function Sidebar() {
 
   const menus = [
     {
-      name: "Dashboard",
+      title: "Dashboard",
       href: "/admin/dashboard",
       icon: LayoutDashboard,
     },
     {
-      name: "Brochure Catalog",
+      title: "Brochure Catalog",
       href: "/admin/brochures",
       icon: FileText,
     },
   ];
 
   return (
-    <aside className="flex h-screen w-[280px] flex-col justify-between border-r border-gray-200 bg-white px-6 py-8">
+    <aside className="flex h-screen w-[290px] flex-col justify-between bg-[#111111] px-7 py-8 text-white">
 
       {/* Logo */}
       <div>
 
-        <div className="flex items-center gap-3">
+        <div className="mb-14">
 
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-yellow-400 text-white shadow-lg">
-            <BookOpen size={28} />
-          </div>
-
-          <div>
-
-            <h1 className="text-xl font-bold text-[#6B4E16]">
-              E-Brosur Admin
-            </h1>
-
-            <p className="text-xs leading-5 text-gray-500">
-              ISP Infrastructure
-              <br />
-              Brochure Management
-            </p>
-
-          </div>
-
+          <h1 className="text-3xl font-bold tracking-wide">
+            Naratel
+          </h1>
         </div>
 
         {/* Menu */}
 
-        <nav className="mt-12 space-y-3">
+        <nav className="space-y-3">
 
           {menus.map((menu) => {
             const Icon = menu.icon;
@@ -65,17 +49,19 @@ export default function Sidebar() {
 
             return (
               <Link
-                key={menu.name}
+                key={menu.title}
                 href={menu.href}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition-all duration-200 ${
+                className={`flex items-center gap-4 rounded-2xl px-5 py-4 transition-all ${
                   active
-                    ? "bg-orange-100 text-orange-600"
-                    : "text-gray-600 hover:bg-orange-50 hover:text-orange-500"
+                    ? "bg-[#FF8C00] text-white shadow-lg"
+                    : "text-gray-400 hover:bg-[#1B1B1B] hover:text-white"
                 }`}
               >
                 <Icon size={22} />
 
-                {menu.name}
+                <span className="text-[15px] font-medium">
+                  {menu.title}
+                </span>
               </Link>
             );
           })}
@@ -88,27 +74,27 @@ export default function Sidebar() {
 
       <div>
 
-        <div className="mb-5 flex items-center gap-3 rounded-xl border border-gray-200 p-4">
+        <div className="mb-5 flex items-center gap-4 rounded-2xl bg-[#1A1A1A] p-4">
 
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 font-bold text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FF8C00] font-bold">
             A
           </div>
 
           <div>
 
-            <p className="font-semibold text-[#6B4E16]">
-              ISP Admin
+            <p className="font-semibold">
+              Admin
             </p>
 
-            <span className="text-sm text-gray-500">
-              Administrator
-            </span>
+            <p className="text-sm text-gray-400">
+              Admin Naratel
+            </p>
 
           </div>
 
         </div>
 
-        <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 py-3 font-medium text-red-500 transition hover:bg-red-50">
+        <button className="flex w-full items-center justify-center gap-3 rounded-2xl border border-[#2D2D2D] py-4 text-gray-300 transition hover:bg-red-500 hover:text-white">
 
           <LogOut size={20} />
 

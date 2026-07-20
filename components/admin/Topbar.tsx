@@ -16,10 +16,7 @@ export default function Topbar() {
           <h1 className="text-2xl font-bold text-[#6B4E16]">
             Naratel
           </h1>
-
-          <p className="text-sm text-gray-500">
-            Infrastructure Management
-          </p>
+          
         </div>
 
         {/* Search */}
@@ -62,17 +59,17 @@ export default function Topbar() {
           <div className="text-right">
 
             <p className="font-semibold text-[#6B4E16]">
-              Admin Panel
+              Admin
             </p>
 
             <p className="text-sm text-gray-500">
-              Administrator
+              Admin Naratel
             </p>
 
           </div>
 
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 font-bold text-white shadow">
-            AD
+            A
           </div>
 
         </div>
