@@ -1,20 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import BrochureService from "@/services/BrochureService";
 
-export async function GET() {
+export async function GET(
+  request: NextRequest
+) {
   try {
-    const brochures =
-      await BrochureService.getAll();
+    const keyword =
+      request.nextUrl.searchParams.get(
+        "search"
+      );
+
+    const brochures = keyword
+      ? await BrochureService.search(
+          keyword
+        )
+      : await BrochureService.getAll();
 
     return NextResponse.json({
       success: true,
       data: brochures,
     });
-  } catch {
+  } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
       {
         success: false,
-        message: "Gagal mengambil data brosur",
+        message:
+          "Gagal mengambil data.",
       },
       {
         status: 500,
@@ -23,29 +36,62 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest
+) {
   try {
-    const body = await request.json();
+    const body =
+      await request.json();
 
-    const id =
-      await BrochureService.create(body);
+    const {
+      title,
+      price,
+      short_description,
+      description,
+    } = body;
+
+    if (!title) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Judul brosur wajib diisi.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const slug = title
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+
+    await BrochureService.create({
+      title,
+      slug,
+      image: "default.png",
+      price,
+      short_description,
+      description,
+    });
 
     return NextResponse.json({
       success: true,
-      message: "Brosur berhasil ditambahkan",
-      id,
+      message:
+        "Brosur berhasil ditambahkan.",
     });
-  } catch (error: unknown) {
+  } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
       {
         success: false,
         message:
-          error instanceof Error
-            ? error.message
-            : "Terjadi kesalahan",
+          "Terjadi kesalahan.",
       },
       {
-        status: 400,
+        status: 500,
       }
     );
   }

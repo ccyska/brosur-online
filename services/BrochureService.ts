@@ -1,69 +1,66 @@
-import BrochureRepository, {
-  BrochurePayload,
-} from "@/repositories/BrochureRepository";
+import BrochureRepository from "@/repositories/BrochureRepository";
+
+interface CreateBrochureData {
+  title: string;
+  slug: string;
+  image: string;
+  price: number | null;
+  short_description: string | null;
+  description: string | null;
+}
 
 export default class BrochureService {
   /**
-   * Ambil semua brosur
+   * Mengambil semua data brosur
    */
   static async getAll() {
     return await BrochureRepository.getAll();
   }
 
   /**
-   * Ambil detail brosur berdasarkan ID
+   * Mencari brosur
+   */
+  static async search(
+    keyword: string
+  ) {
+    return await BrochureRepository.search(
+      keyword
+    );
+  }
+
+  /**
+   * Mengambil brosur berdasarkan ID
    */
   static async getById(id: number) {
     return await BrochureRepository.getById(id);
   }
 
   /**
-   * Ambil detail berdasarkan slug
-   */
-  static async getBySlug(slug: string) {
-    return await BrochureRepository.getBySlug(slug);
-  }
-
-  /**
-   * Tambah brosur
+   * Menambahkan brosur baru
    */
   static async create(
-    payload: BrochurePayload
+    data: CreateBrochureData
   ) {
-    const slugExists =
-      await BrochureRepository.slugExists(payload.slug);
-
-    if (slugExists) {
-      throw new Error("Slug sudah digunakan");
-    }
-
-    return await BrochureRepository.create(payload);
+    await BrochureRepository.create(data);
   }
 
   /**
-   * Update brosur
+   * Mengubah data brosur
    */
   static async update(
     id: number,
-    payload: BrochurePayload
+    data: CreateBrochureData
   ) {
-    return await BrochureRepository.update(
+    await BrochureRepository.update(
       id,
-      payload
+      data
     );
   }
 
   /**
-   * Hapus brosur
+   * Menghapus brosur
    */
   static async delete(id: number) {
-    return await BrochureRepository.delete(id);
+    await BrochureRepository.delete(id);
   }
-
-  /**
-   * Total brosur
-   */
-  static async count() {
-    return await BrochureRepository.count();
-  }
-};
+}

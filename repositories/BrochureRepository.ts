@@ -1,30 +1,30 @@
 import db from "@/lib/db";
-import { ResultSetHeader, RowDataPacket } from "mysql2";
+import { RowDataPacket } from "mysql2";
 
 export interface Brochure extends RowDataPacket {
   id: number;
   title: string;
   slug: string;
   image: string;
-  price: number;
-  short_description: string;
-  description: string;
+  price: number | null;
+  short_description: string | null;
+  description: string | null;
   created_at: Date;
   updated_at: Date;
 }
 
-export interface BrochurePayload {
+interface CreateBrochureData {
   title: string;
   slug: string;
   image: string;
-  price: number;
-  short_description: string;
-  description: string;
+  price: number |null;
+  short_description: string | null;
+  description: string | null;
 }
 
 export default class BrochureRepository {
   /**
-   * Mengambil seluruh brosur
+   * Mengambil semua data brosur
    */
   static async getAll(): Promise<Brochure[]> {
     const [rows] = await db.query<Brochure[]>(
@@ -33,6 +33,25 @@ export default class BrochureRepository {
       FROM brochures
       ORDER BY created_at DESC
       `
+    );
+
+    return rows;
+  }
+
+  /**
+   * Mencari brosur berdasarkan judul
+   */
+  static async search(
+    keyword: string
+  ): Promise<Brochure[]> {
+    const [rows] = await db.query<Brochure[]>(
+      `
+      SELECT *
+      FROM brochures
+      WHERE title LIKE ?
+      ORDER BY created_at DESC
+      `,
+      [`%${keyword}%`]
     );
 
     return rows;
@@ -58,34 +77,14 @@ export default class BrochureRepository {
   }
 
   /**
-   * Mengambil brosur berdasarkan slug
-   */
-  static async getBySlug(
-    slug: string
-  ): Promise<Brochure | null> {
-    const [rows] = await db.query<Brochure[]>(
-      `
-      SELECT *
-      FROM brochures
-      WHERE slug = ?
-      LIMIT 1
-      `,
-      [slug]
-    );
-
-    return rows.length ? rows[0] : null;
-  }
-
-  /**
-   * Menambah brosur baru
+   * Menambahkan brosur baru
    */
   static async create(
-    payload: BrochurePayload
-  ): Promise<number> {
-    const [result] = await db.query<ResultSetHeader>(
+    data: CreateBrochureData
+  ): Promise<void> {
+    await db.query(
       `
-      INSERT INTO brochures
-      (
+      INSERT INTO brochures (
         title,
         slug,
         image,
@@ -93,30 +92,27 @@ export default class BrochureRepository {
         short_description,
         description
       )
-      VALUES
-      (?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?)
       `,
       [
-        payload.title,
-        payload.slug,
-        payload.image,
-        payload.price,
-        payload.short_description,
-        payload.description,
+        data.title,
+        data.slug,
+        data.image,
+        data.price,
+        data.short_description,
+        data.description,
       ]
     );
-
-    return result.insertId;
   }
 
   /**
-   * Mengubah brosur
+   * Mengubah data brosur
    */
   static async update(
     id: number,
-    payload: BrochurePayload
-  ): Promise<boolean> {
-    const [result] = await db.query<ResultSetHeader>(
+    data: CreateBrochureData
+  ): Promise<void> {
+    await db.query(
       `
       UPDATE brochures
       SET
@@ -126,21 +122,19 @@ export default class BrochureRepository {
         price = ?,
         short_description = ?,
         description = ?,
-        updated_at = CURRENT_TIMESTAMP
+        updated_at = CURRENT_TIMESTAMP()
       WHERE id = ?
       `,
       [
-        payload.title,
-        payload.slug,
-        payload.image,
-        payload.price,
-        payload.short_description,
-        payload.description,
+        data.title,
+        data.slug,
+        data.image,
+        data.price,
+        data.short_description,
+        data.description,
         id,
       ]
     );
-
-    return result.affectedRows > 0;
   }
 
   /**
@@ -148,47 +142,13 @@ export default class BrochureRepository {
    */
   static async delete(
     id: number
-  ): Promise<boolean> {
-    const [result] = await db.query<ResultSetHeader>(
+  ): Promise<void> {
+    await db.query(
       `
       DELETE FROM brochures
       WHERE id = ?
       `,
       [id]
     );
-
-    return result.affectedRows > 0;
   }
-
-  /**
-   * Menghitung jumlah brosur
-   */
-  static async count(): Promise<number> {
-    const [rows] = await db.query<RowDataPacket[]>(
-      `
-      SELECT COUNT(*) AS total
-      FROM brochures
-      `
-    );
-
-    return rows[0].total;
-  }
-
-  /**
-   * Mengecek apakah slug sudah digunakan
-   */
-  static async slugExists(
-    slug: string
-  ): Promise<boolean> {
-    const [rows] = await db.query<RowDataPacket[]>(
-      `
-      SELECT COUNT(*) AS total
-      FROM brochures
-      WHERE slug = ?
-      `,
-      [slug]
-    );
-
-    return rows[0].total > 0;
-  }
-};
+}

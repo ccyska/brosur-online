@@ -10,7 +10,7 @@ export default function BrochureHeader() {
         </h1>
 
         <p className="mt-2 text-gray-500">
-          Kelola seluruh brosur yang tersedia.
+          Kelola seluruh brosur yang tersedia
         </p>
       </div>
 
