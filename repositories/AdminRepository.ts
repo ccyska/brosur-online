@@ -16,6 +16,9 @@ export default class AdminRepository {
   static async getByUsername(
     username: string
   ): Promise<Admin | null> {
+
+    console.log("Username yang dicari:", username);
+
     const [rows] = await db.query<Admin[]>(
       `
       SELECT *
@@ -25,6 +28,8 @@ export default class AdminRepository {
       `,
       [username]
     );
+
+console.log(rows);
 
     return rows.length ? rows[0] : null;
   }
