@@ -1,5 +1,6 @@
-import { Pencil, Trash2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface BrochureRowProps {
   brochure: {
@@ -9,6 +10,7 @@ interface BrochureRowProps {
     price: number | null;
     created_at: string;
   };
+
   onDelete: (id: number) => void;
 }
 
@@ -20,12 +22,23 @@ export default function BrochureRow({
     <tr className="border-b hover:bg-gray-50">
 
       <td className="px-6 py-4">
-        <div className="flex h-16 w-20 items-center justify-center rounded-lg bg-gray-200 text-xs text-gray-500">
-          Image
+
+        <div className="relative h-16 w-24 overflow-hidden rounded-lg border">
+
+          <Image
+            src={`/uploads/${brochure.image}`}
+            alt={brochure.title}
+            fill
+            className="object-cover"
+          />
+
         </div>
+
       </td>
 
-      <td>{brochure.title}</td>
+      <td className="font-medium">
+        {brochure.title}
+      </td>
 
       <td>
         {brochure.price !== null
@@ -42,11 +55,12 @@ export default function BrochureRow({
       </td>
 
       <td>
+
         <div className="flex gap-3">
 
           <Link
             href={`/admin/brochures/edit/${brochure.id}`}
-            className="rounded-lg bg-blue-100 p-2 text-blue-600"
+            className="rounded-lg bg-blue-100 p-2 text-blue-600 transition hover:bg-blue-200"
           >
             <Pencil size={18} />
           </Link>
@@ -61,6 +75,7 @@ export default function BrochureRow({
           </button>
 
         </div>
+
       </td>
 
     </tr>

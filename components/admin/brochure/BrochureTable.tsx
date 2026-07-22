@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 
 import BrochureRow from "./BrochureRow";
 import EmptyState from "./EmptyState";
-import SearchBar from "./SearchBar";
 
 interface Brochure {
   id: number;
@@ -14,15 +13,18 @@ interface Brochure {
   created_at: string;
 }
 
-export default function BrochureTable() {
+interface BrochureTableProps {
+  search: string;
+}
+
+export default function BrochureTable({
+  search,
+}: BrochureTableProps) {
   const [brochures, setBrochures] =
     useState<Brochure[]>([]);
 
   const [loading, setLoading] =
     useState(true);
-
-  const [search, setSearch] =
-    useState("");
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -44,8 +46,7 @@ export default function BrochureTable() {
         )}`
       );
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       setBrochures(result.data);
     } catch (error) {
@@ -72,8 +73,7 @@ export default function BrochureTable() {
         }
       );
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!result.success) {
         alert(result.message);
@@ -90,77 +90,63 @@ export default function BrochureTable() {
       );
     } catch (error) {
       console.error(error);
-
       alert("Terjadi kesalahan.");
     }
   }
 
+  if (loading) {
+    return (
+      <div className="rounded-2xl bg-white p-8 text-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (brochures.length === 0) {
+    return (
+      <div className="rounded-2xl bg-white">
+        <EmptyState />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <table className="w-full">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-6 py-4 text-left">
+              Image
+            </th>
 
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-      />
+            <th className="text-left">
+              Title
+            </th>
 
-      {loading ? (
-        <div className="rounded-2xl bg-white p-8 text-center">
-          Loading...
-        </div>
-      ) : brochures.length === 0 ? (
-        <div className="rounded-2xl bg-white">
-          <EmptyState />
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+            <th className="text-left">
+              Price
+            </th>
 
-          <table className="w-full">
+            <th className="text-left">
+              Created
+            </th>
 
-            <thead className="bg-gray-100">
+            <th className="text-left">
+              Action
+            </th>
+          </tr>
+        </thead>
 
-              <tr>
-
-                <th className="px-6 py-4 text-left">
-                  Image
-                </th>
-
-                <th className="text-left">
-                  Title
-                </th>
-
-                <th className="text-left">
-                  Price
-                </th>
-
-                <th className="text-left">
-                  Created
-                </th>
-
-                <th className="text-left">
-                  Action
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {brochures.map((brochure) => (
-                <BrochureRow
-                  key={brochure.id}
-                  brochure={brochure}
-                  onDelete={handleDelete}
-                />
-              ))}
-
-            </tbody>
-
-          </table>
-
-        </div>
-      )}
-
+        <tbody>
+          {brochures.map((brochure) => (
+            <BrochureRow
+              key={brochure.id}
+              brochure={brochure}
+              onDelete={handleDelete}
+            />
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

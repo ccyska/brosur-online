@@ -43,12 +43,12 @@ export async function POST(
     const body =
       await request.json();
 
-    const {
-      title,
-      price,
-      short_description,
-      description,
-    } = body;
+const {
+  title,
+  image,
+  short_description,
+  description,
+} = body;
 
     if (!title) {
       return NextResponse.json(
@@ -67,14 +67,13 @@ export async function POST(
       .toLowerCase()
       .replace(/\s+/g, "-");
 
-    await BrochureService.create({
-      title,
-      slug,
-      image: "default.png",
-      price,
-      short_description,
-      description,
-    });
+await BrochureService.create({
+  title,
+  slug,
+  image,
+  short_description,
+  description,
+});
 
     return NextResponse.json({
       success: true,

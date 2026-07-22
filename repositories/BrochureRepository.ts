@@ -6,26 +6,22 @@ export interface Brochure extends RowDataPacket {
   title: string;
   slug: string;
   image: string;
-  price: number | null;
   short_description: string | null;
   description: string | null;
   created_at: Date;
   updated_at: Date;
 }
 
-interface CreateBrochureData {
+export interface CreateBrochureData {
   title: string;
   slug: string;
   image: string;
-  price: number |null;
   short_description: string | null;
   description: string | null;
 }
 
 export default class BrochureRepository {
-  /**
-   * Mengambil semua data brosur
-   */
+
   static async getAll(): Promise<Brochure[]> {
     const [rows] = await db.query<Brochure[]>(
       `
@@ -38,12 +34,10 @@ export default class BrochureRepository {
     return rows;
   }
 
-  /**
-   * Mencari brosur berdasarkan judul
-   */
   static async search(
     keyword: string
   ): Promise<Brochure[]> {
+
     const [rows] = await db.query<Brochure[]>(
       `
       SELECT *
@@ -57,12 +51,10 @@ export default class BrochureRepository {
     return rows;
   }
 
-  /**
-   * Mengambil brosur berdasarkan ID
-   */
   static async getById(
     id: number
   ): Promise<Brochure | null> {
+
     const [rows] = await db.query<Brochure[]>(
       `
       SELECT *
@@ -76,42 +68,53 @@ export default class BrochureRepository {
     return rows.length ? rows[0] : null;
   }
 
-  /**
-   * Menambahkan brosur baru
-   */
+  static async getBySlug(
+    slug: string
+  ): Promise<Brochure | null> {
+
+    const [rows] = await db.query<Brochure[]>(
+      `
+      SELECT *
+      FROM brochures
+      WHERE slug = ?
+      LIMIT 1
+      `,
+      [slug]
+    );
+
+    return rows.length ? rows[0] : null;
+  }
+
   static async create(
     data: CreateBrochureData
   ): Promise<void> {
+
     await db.query(
       `
       INSERT INTO brochures (
         title,
         slug,
         image,
-        price,
         short_description,
         description
       )
-      VALUES (?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?)
       `,
       [
         data.title,
         data.slug,
         data.image,
-        data.price,
         data.short_description,
         data.description,
       ]
     );
   }
 
-  /**
-   * Mengubah data brosur
-   */
   static async update(
     id: number,
     data: CreateBrochureData
   ): Promise<void> {
+
     await db.query(
       `
       UPDATE brochures
@@ -119,7 +122,6 @@ export default class BrochureRepository {
         title = ?,
         slug = ?,
         image = ?,
-        price = ?,
         short_description = ?,
         description = ?,
         updated_at = CURRENT_TIMESTAMP()
@@ -129,7 +131,6 @@ export default class BrochureRepository {
         data.title,
         data.slug,
         data.image,
-        data.price,
         data.short_description,
         data.description,
         id,
@@ -137,12 +138,10 @@ export default class BrochureRepository {
     );
   }
 
-  /**
-   * Menghapus brosur
-   */
   static async delete(
     id: number
   ): Promise<void> {
+
     await db.query(
       `
       DELETE FROM brochures
@@ -151,4 +150,5 @@ export default class BrochureRepository {
       [id]
     );
   }
+
 }

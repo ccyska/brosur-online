@@ -18,7 +18,8 @@ export default function BrochureForm() {
   const [image, setImage] =
     useState<File | null>(null);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const handleSubmit = async (
     e: FormEvent<HTMLFormElement>
@@ -33,6 +34,38 @@ export default function BrochureForm() {
     try {
       setLoading(true);
 
+      let imageName = "default.png";
+
+      // ==========================
+      // Upload Image
+      // ==========================
+
+      if (image) {
+        const formData = new FormData();
+
+        formData.append("file", image);
+
+        const uploadResponse =
+          await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+        const uploadResult =
+          await uploadResponse.json();
+
+        if (!uploadResult.success) {
+          alert(uploadResult.message);
+          return;
+        }
+
+        imageName = uploadResult.filename;
+      }
+
+      // ==========================
+      // Save Brochure
+      // ==========================
+
       const response = await fetch(
         "/api/brochures",
         {
@@ -43,6 +76,7 @@ export default function BrochureForm() {
           },
           body: JSON.stringify({
             title,
+            image: imageName,
             price:
               price === ""
                 ? null
@@ -64,15 +98,12 @@ export default function BrochureForm() {
 
       alert(result.message);
 
-      router.push(
-        "/admin/brochures"
-      );
+      router.push("/admin/brochures");
+      router.refresh();
     } catch (error) {
       console.error(error);
 
-      alert(
-        "Terjadi kesalahan pada server."
-      );
+      alert("Terjadi kesalahan.");
     } finally {
       setLoading(false);
     }
@@ -146,7 +177,7 @@ export default function BrochureForm() {
       <button
         type="submit"
         disabled={loading}
-        className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-400"
+        className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:bg-gray-400"
       >
         {loading
           ? "Saving..."
@@ -154,4 +185,4 @@ export default function BrochureForm() {
       </button>
     </form>
   );
-} 
+}

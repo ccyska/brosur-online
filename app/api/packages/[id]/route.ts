@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unlink } from "fs/promises";
-import path from "path";
-import BrochureService from "@/services/BrochureService";
+import BrochurePackageService from "@/services/BrochurePackageService";
 
 interface RouteParams {
   params: Promise<{
@@ -16,14 +14,16 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const brochure =
-      await BrochureService.getById(Number(id));
+    const packageData =
+      await BrochurePackageService.getById(
+        Number(id)
+      );
 
-    if (!brochure) {
+    if (!packageData) {
       return NextResponse.json(
         {
           success: false,
-          message: "Brosur tidak ditemukan.",
+          message: "Paket tidak ditemukan.",
         },
         {
           status: 404,
@@ -33,7 +33,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: brochure,
+      data: packageData,
     });
   } catch (error) {
     console.error(error);
@@ -59,18 +59,26 @@ export async function PUT(
 
     const body = await request.json();
 
-   const {
-  title,
-  image,
-  short_description,
-  description,
-} = body;
+    const {
+      brochure_id,
+      package_name,
+      speed,
+      price,
+      badge,
+      short_description,
+      description,
+    } = body;
 
-    if (!title) {
+    if (
+      !brochure_id ||
+      !package_name ||
+      !speed ||
+      !price
+    ) {
       return NextResponse.json(
         {
           success: false,
-          message: "Judul brosur wajib diisi.",
+          message: "Data wajib diisi.",
         },
         {
           status: 400,
@@ -78,14 +86,16 @@ export async function PUT(
       );
     }
 
-    const brochure =
-      await BrochureService.getById(Number(id));
+    const packageData =
+      await BrochurePackageService.getById(
+        Number(id)
+      );
 
-    if (!brochure) {
+    if (!packageData) {
       return NextResponse.json(
         {
           success: false,
-          message: "Brosur tidak ditemukan.",
+          message: "Paket tidak ditemukan.",
         },
         {
           status: 404,
@@ -93,41 +103,22 @@ export async function PUT(
       );
     }
 
-    const slug = title
-      .toLowerCase()
-      .replace(/\s+/g, "-");
-
- await BrochureService.update(
-  Number(id),
-  {
-    title,
-    slug,
-    image: image ?? brochure.image,
-    short_description,
-    description,
-  }
-);
-
-    // Delete old image from disk when a new one was uploaded,
-    // but never delete the default placeholder.
-    if (image && image !== brochure.image && brochure.image !== "default.png") {
-      const oldImagePath = path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        brochure.image
-      );
-
-      try {
-        await unlink(oldImagePath);
-      } catch {
-        // File may already be gone — not a fatal error.
+    await BrochurePackageService.update(
+      Number(id),
+      {
+        brochure_id,
+        package_name,
+        speed,
+        price,
+        badge,
+        short_description,
+        description,
       }
-    }
+    );
 
     return NextResponse.json({
       success: true,
-      message: "Brosur berhasil diperbarui.",
+      message: "Paket berhasil diperbarui.",
     });
   } catch (error) {
     console.error(error);
@@ -151,14 +142,16 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const brochure =
-      await BrochureService.getById(Number(id));
+    const packageData =
+      await BrochurePackageService.getById(
+        Number(id)
+      );
 
-    if (!brochure) {
+    if (!packageData) {
       return NextResponse.json(
         {
           success: false,
-          message: "Brosur tidak ditemukan.",
+          message: "Paket tidak ditemukan.",
         },
         {
           status: 404,
@@ -166,28 +159,13 @@ export async function DELETE(
       );
     }
 
-    // Hapus data dari database
-    await BrochureService.delete(Number(id));
-
-    // Hapus gambar jika bukan default.png
-    if (brochure.image !== "default.png") {
-      const imagePath = path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        brochure.image
-      );
-
-      try {
-        await unlink(imagePath);
-      } catch {
-        // Abaikan jika file tidak ditemukan
-      }
-    }
+    await BrochurePackageService.delete(
+      Number(id)
+    );
 
     return NextResponse.json({
       success: true,
-      message: "Brosur berhasil dihapus.",
+      message: "Paket berhasil dihapus.",
     });
   } catch (error) {
     console.error(error);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Brochure {
   id: number;
@@ -20,6 +21,9 @@ export default function EditBrochureView() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [image, setImage] = useState("");
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [shortDescription, setShortDescription] =
@@ -47,6 +51,7 @@ export default function EditBrochureView() {
       const brochure: Brochure = result.data;
 
       setTitle(brochure.title);
+      setImage(brochure.image ?? "");
       setPrice(
         brochure.price
           ? String(brochure.price)
@@ -66,6 +71,44 @@ export default function EditBrochureView() {
     }
   }
 
+  function handleImageChange(
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/webp",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert(
+        "Format gambar tidak didukung. Gunakan PNG, JPG, atau WebP."
+      );
+      e.target.value = "";
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      alert("Ukuran gambar maksimal 5 MB.");
+      e.target.value = "";
+      return;
+    }
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setNewImage(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  }
+
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
   ) {
@@ -79,29 +122,50 @@ export default function EditBrochureView() {
     try {
       setSaving(true);
 
+      let uploadedFilename: string | null = null;
+
+      if (newImage) {
+        const formData = new FormData();
+        formData.append("file", newImage);
+
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadResult = await uploadResponse.json();
+
+        if (!uploadResult.success) {
+          alert("Upload gambar gagal.");
+          return;
+        }
+
+        uploadedFilename = uploadResult.filename;
+      }
+
+      const body: Record<string, unknown> = {
+        title,
+        price: price === "" ? null : Number(price),
+        short_description: shortDescription,
+        description,
+      };
+
+      if (uploadedFilename) {
+        body.image = uploadedFilename;
+      }
+
       const response = await fetch(
         `/api/brochures/${id}`,
         {
           method: "PUT",
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            title,
-            price:
-              price === ""
-                ? null
-                : Number(price),
-            short_description:
-              shortDescription,
-            description,
-          }),
+          body: JSON.stringify(body),
         }
       );
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!result.success) {
         alert(result.message);
@@ -110,15 +174,11 @@ export default function EditBrochureView() {
 
       alert(result.message);
 
-      router.push(
-        "/admin/brochures"
-      );
+      router.push("/admin/brochures");
     } catch (error) {
       console.error(error);
 
-      alert(
-        "Terjadi kesalahan pada server."
-      );
+      alert("Terjadi kesalahan pada server.");
     } finally {
       setSaving(false);
     }
@@ -132,6 +192,12 @@ export default function EditBrochureView() {
     );
   }
 
+  const displaySrc = previewUrl
+    ? previewUrl
+    : image
+    ? `/uploads/${image}`
+    : null;
+
   return (
     <div className="space-y-6">
 
@@ -144,6 +210,52 @@ export default function EditBrochureView() {
         <p className="text-gray-500">
           Ubah informasi brosur.
         </p>
+
+      </div>
+
+      <div className="rounded-2xl bg-white p-8 shadow-sm">
+
+        <label className="mb-2 block font-medium">
+          {previewUrl ? "New Image Preview" : "Current Image"}
+        </label>
+
+        {displaySrc ? (
+          <div className="relative h-48 w-80 overflow-hidden rounded-xl">
+            <Image
+              src={displaySrc}
+              alt="Brochure image"
+              fill
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <div className="flex h-48 w-80 items-center justify-center rounded-xl bg-gray-200">
+            <span className="text-sm text-gray-400">
+              No image
+            </span>
+          </div>
+        )}
+
+        <div className="mt-4">
+
+          <label className="mb-2 block font-medium">
+            Change Image
+          </label>
+
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            onChange={handleImageChange}
+            className="w-full rounded-xl border p-3 text-sm outline-none focus:border-orange-500"
+          />
+
+          {newImage && (
+            <p className="mt-2 text-sm text-gray-500">
+              {newImage.name}
+            </p>
+          )}
+
+        </div>
 
       </div>
 
