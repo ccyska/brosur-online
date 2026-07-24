@@ -2,31 +2,31 @@ import { Search } from "lucide-react";
 
 export default function DashboardHeader() {
   return (
-    <div className="mb-10 flex items-center justify-between">
+    <div className="mb-10 flex items-start justify-between">
 
       <div>
 
-        <h1 className="text-4xl font-bold text-white">
+        <h1 className="text-5xl font-bold text-[#1F1F1F]">
           Dashboard
         </h1>
 
-        <p className="mt-2 text-gray-400">
+        <p className="mt-2 text-lg text-[#8E95A9]">
           Welcome back, Admin 👋
         </p>
 
       </div>
 
-      <div className="relative w-[360px]">
+      <div className="flex h-14 w-[340px] items-center rounded-2xl border border-[#ECECEC] bg-white px-5 shadow-sm">
 
         <Search
           size={20}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+          className="text-gray-400"
         />
 
         <input
           type="text"
           placeholder="Search..."
-          className="h-12 w-full rounded-2xl border border-[#2F2F2F] bg-[#181818] pl-12 pr-4 text-sm text-white outline-none transition focus:border-orange-500"
+          className="ml-3 w-full bg-transparent text-[15px] text-[#1E1E1E] outline-none placeholder:text-[#B0B0B0]"
         />
 
       </div>

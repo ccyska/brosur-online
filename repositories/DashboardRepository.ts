@@ -22,6 +22,7 @@ export interface RecentActivity extends RowDataPacket {
 export interface PopularBrochure extends RowDataPacket {
   id: number;
   title: string;
+  image: string;
   total_view: number;
 }
 
@@ -45,7 +46,7 @@ export default class DashboardRepository {
       `
       SELECT COUNT(*) AS total
       FROM brochures
-      `
+      `,
     );
 
     return rows[0].total;
@@ -59,7 +60,7 @@ export default class DashboardRepository {
       `
       SELECT COUNT(*) AS total
       FROM page_views
-      `
+      `,
     );
 
     return rows[0].total;
@@ -73,7 +74,7 @@ export default class DashboardRepository {
       `
       SELECT COUNT(*) AS total
       FROM brochures
-      `
+      `,
     );
 
     return rows[0].total;
@@ -92,7 +93,7 @@ export default class DashboardRepository {
       FROM brochures
       ORDER BY created_at DESC
       LIMIT 5
-      `
+      `,
     );
 
     return rows;
@@ -105,16 +106,20 @@ export default class DashboardRepository {
     const [rows] = await db.query<PopularBrochure[]>(
       `
       SELECT
-        b.id,
-        b.title,
-        COUNT(pv.id) AS total_view
-      FROM brochures b
-      LEFT JOIN page_views pv
-        ON pv.brochure_id = b.id
-      GROUP BY b.id, b.title
-      ORDER BY total_view DESC
-      LIMIT 5
-      `
+    b.id,
+    b.title,
+    b.image,
+    COUNT(pv.id) AS total_view
+FROM brochures b
+LEFT JOIN page_views pv
+ON pv.brochure_id = b.id
+GROUP BY
+    b.id,
+    b.title,
+    b.image
+ORDER BY total_view DESC
+LIMIT 5
+      `,
     );
 
     return rows;
@@ -133,7 +138,7 @@ export default class DashboardRepository {
       WHERE viewed_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
       GROUP BY DATE(viewed_at)
       ORDER BY day ASC
-      `
+      `,
     );
 
     return rows;
@@ -154,7 +159,7 @@ export default class DashboardRepository {
         ON b.id = pv.brochure_id
       ORDER BY pv.viewed_at DESC
       LIMIT 5
-      `
+      `,
     );
 
     return rows;
