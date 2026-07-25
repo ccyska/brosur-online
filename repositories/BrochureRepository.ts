@@ -1,97 +1,91 @@
 import db from "@/lib/db";
-import { RowDataPacket } from "mysql2";
 
-export interface Brochure extends RowDataPacket {
+interface Brochure {
   id: number;
   title: string;
   slug: string;
   image: string;
   short_description: string | null;
   description: string | null;
-  created_at: Date;
-  updated_at: Date;
 }
 
-export interface CreateBrochureData {
-  title: string;
-  slug: string;
-  image: string;
-  short_description: string | null;
-  description: string | null;
-}
 
 export default class BrochureRepository {
 
-  static async getAll(): Promise<Brochure[]> {
-    const [rows] = await db.query<Brochure[]>(
-      `
-      SELECT *
-      FROM brochures
-      ORDER BY created_at DESC
-      `
+
+  static async getAll() {
+
+    const [rows] = await db.query(
+      "SELECT * FROM brochures ORDER BY id DESC"
     );
 
-    return rows;
+    return rows as Brochure[];
+
   }
 
-  static async search(
-    keyword: string
-  ): Promise<Brochure[]> {
 
-    const [rows] = await db.query<Brochure[]>(
+
+  static async getById(id: number) {
+
+    const [rows] = await db.query(
+      "SELECT * FROM brochures WHERE id = ? LIMIT 1",
+      [id]
+    );
+
+    const brochures = rows as Brochure[];
+
+    return brochures[0] ?? null;
+
+  }
+
+
+
+  static async getBySlug(slug: string) {
+
+    const [rows] = await db.query(
+      "SELECT * FROM brochures WHERE slug = ? LIMIT 1",
+      [slug]
+    );
+
+    const brochures = rows as Brochure[];
+
+    return brochures[0] ?? null;
+
+  }
+
+
+
+  static async search(keyword: string) {
+
+    const [rows] = await db.query(
       `
-      SELECT *
-      FROM brochures
+      SELECT * FROM brochures
       WHERE title LIKE ?
-      ORDER BY created_at DESC
+      ORDER BY id DESC
       `,
       [`%${keyword}%`]
     );
 
-    return rows;
+
+    return rows as Brochure[];
+
   }
 
-  static async getById(
-    id: number
-  ): Promise<Brochure | null> {
 
-    const [rows] = await db.query<Brochure[]>(
+
+  static async create(data: {
+    title: string;
+    slug: string;
+    image: string;
+    short_description: string | null;
+    description: string | null;
+  }) {
+
+
+    const [result] = await db.query(
       `
-      SELECT *
-      FROM brochures
-      WHERE id = ?
-      LIMIT 1
-      `,
-      [id]
-    );
-
-    return rows.length ? rows[0] : null;
-  }
-
-  static async getBySlug(
-    slug: string
-  ): Promise<Brochure | null> {
-
-    const [rows] = await db.query<Brochure[]>(
-      `
-      SELECT *
-      FROM brochures
-      WHERE slug = ?
-      LIMIT 1
-      `,
-      [slug]
-    );
-
-    return rows.length ? rows[0] : null;
-  }
-
-  static async create(
-    data: CreateBrochureData
-  ): Promise<void> {
-
-    await db.query(
-      `
-      INSERT INTO brochures (
+      INSERT INTO brochures
+      (
         title,
         slug,
         image,
@@ -108,14 +102,27 @@ export default class BrochureRepository {
         data.description,
       ]
     );
+
+
+    return result;
+
   }
+
+
 
   static async update(
     id: number,
-    data: CreateBrochureData
-  ): Promise<void> {
+    data: {
+      title: string;
+      slug: string;
+      image: string;
+      short_description: string | null;
+      description: string | null;
+    }
+  ) {
 
-    await db.query(
+
+    const [result] = await db.query(
       `
       UPDATE brochures
       SET
@@ -123,8 +130,7 @@ export default class BrochureRepository {
         slug = ?,
         image = ?,
         short_description = ?,
-        description = ?,
-        updated_at = CURRENT_TIMESTAMP()
+        description = ?
       WHERE id = ?
       `,
       [
@@ -136,19 +142,26 @@ export default class BrochureRepository {
         id,
       ]
     );
+
+
+    return result;
+
   }
 
-  static async delete(
-    id: number
-  ): Promise<void> {
 
-    await db.query(
-      `
-      DELETE FROM brochures
-      WHERE id = ?
-      `,
+
+  static async delete(id: number) {
+
+
+    const [result] = await db.query(
+      "DELETE FROM brochures WHERE id = ?",
       [id]
     );
+
+
+    return result;
+
   }
+
 
 }

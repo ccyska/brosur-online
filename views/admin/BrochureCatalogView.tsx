@@ -4,14 +4,13 @@ import { useState } from "react";
 
 import BrochureHeader from "@/components/admin/brochure/BrochureHeader";
 import SearchBar from "@/components/admin/brochure/SearchBar";
-import BrochureTable from "@/components/admin/brochure/BrochureTable";
+import BrochureGrid from "@/components/admin/brochure/BrochureGrid";
 
 export default function BrochureCatalogView() {
-  const [search, setSearch] =
-    useState("");
+  const [search, setSearch] = useState("");
 
   return (
-    <>
+    <div className="space-y-6">
       <BrochureHeader />
 
       <SearchBar
@@ -19,9 +18,9 @@ export default function BrochureCatalogView() {
         onChange={setSearch}
       />
 
-      <BrochureTable
+      <BrochureGrid
         search={search}
       />
-    </>
+    </div>
   );
 }

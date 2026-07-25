@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 
+import PackageSection from "@/components/admin/brochure/PackageSection";
+
 interface Brochure {
   id: number;
   title: string;
   slug: string;
   image: string;
-  price: number | null;
   short_description: string | null;
   description: string | null;
 }
@@ -21,14 +22,19 @@ export default function EditBrochureView() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [image, setImage] = useState("");
-  const [newImage, setNewImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState("");
   const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
+
   const [shortDescription, setShortDescription] =
     useState("");
+
   const [description, setDescription] =
+    useState("");
+
+  const [newImage, setNewImage] =
+    useState<File | null>(null);
+
+  const [previewUrl, setPreviewUrl] =
     useState("");
 
   useEffect(() => {
@@ -48,18 +54,16 @@ export default function EditBrochureView() {
         return;
       }
 
-      const brochure: Brochure = result.data;
+      const brochure: Brochure =
+        result.data;
 
       setTitle(brochure.title);
-      setImage(brochure.image ?? "");
-      setPrice(
-        brochure.price
-          ? String(brochure.price)
-          : ""
-      );
+      setImage(brochure.image);
+
       setShortDescription(
         brochure.short_description ?? ""
       );
+
       setDescription(
         brochure.description ?? ""
       );
@@ -74,39 +78,35 @@ export default function EditBrochureView() {
   function handleImageChange(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
-    const file = e.target.files?.[0];
+    const file =
+      e.target.files?.[0];
 
     if (!file) return;
 
-    const allowedTypes = [
+    const allowed = [
       "image/png",
       "image/jpeg",
       "image/jpg",
       "image/webp",
     ];
 
-    if (!allowedTypes.includes(file.type)) {
+    if (!allowed.includes(file.type)) {
       alert(
-        "Format gambar tidak didukung. Gunakan PNG, JPG, atau WebP."
+        "Gunakan PNG, JPG atau WEBP."
       );
-      e.target.value = "";
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-
-    if (file.size > maxSize) {
-      alert("Ukuran gambar maksimal 5 MB.");
-      e.target.value = "";
       return;
     }
 
     if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+      URL.revokeObjectURL(
+        previewUrl
+      );
     }
 
     setNewImage(file);
-    setPreviewUrl(URL.createObjectURL(file));
+    setPreviewUrl(
+      URL.createObjectURL(file)
+    );
   }
 
   async function handleSubmit(
@@ -115,57 +115,76 @@ export default function EditBrochureView() {
     e.preventDefault();
 
     if (!title.trim()) {
-      alert("Judul brosur wajib diisi.");
+      alert(
+        "Judul brosur wajib diisi."
+      );
       return;
     }
 
     try {
       setSaving(true);
 
-      let uploadedFilename: string | null = null;
+      let imageName = image;
 
       if (newImage) {
-        const formData = new FormData();
-        formData.append("file", newImage);
+        const formData =
+          new FormData();
 
-        const uploadResponse = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+        formData.append(
+          "file",
+          newImage
+        );
 
-        const uploadResult = await uploadResponse.json();
+        const upload =
+          await fetch(
+            "/api/upload",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
 
-        if (!uploadResult.success) {
-          alert("Upload gambar gagal.");
+        const uploadResult =
+          await upload.json();
+
+        if (
+          !uploadResult.success
+        ) {
+          alert(
+            uploadResult.message
+          );
           return;
         }
 
-        uploadedFilename = uploadResult.filename;
+        imageName =
+          uploadResult.filename;
       }
 
-      const body: Record<string, unknown> = {
+      const body = {
         title,
-        price: price === "" ? null : Number(price),
-        short_description: shortDescription,
+        image: imageName,
+        short_description:
+          shortDescription,
         description,
       };
 
-      if (uploadedFilename) {
-        body.image = uploadedFilename;
-      }
+      const response =
+        await fetch(
+          `/api/brochures/${id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify(
+              body
+            ),
+          }
+        );
 
-      const response = await fetch(
-        `/api/brochures/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        }
-      );
-
-      const result = await response.json();
+      const result =
+        await response.json();
 
       if (!result.success) {
         alert(result.message);
@@ -174,11 +193,12 @@ export default function EditBrochureView() {
 
       alert(result.message);
 
-      router.push("/admin/brochures");
+      router.refresh();
     } catch (error) {
       console.error(error);
-
-      alert("Terjadi kesalahan pada server.");
+      alert(
+        "Terjadi kesalahan."
+      );
     } finally {
       setSaving(false);
     }
@@ -192,14 +212,12 @@ export default function EditBrochureView() {
     );
   }
 
-  const displaySrc = previewUrl
-    ? previewUrl
-    : image
-    ? `/uploads/${image}`
-    : null;
+  const displayImage =
+    previewUrl ||
+    `/uploads/${image}`;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
 
       <div>
 
@@ -208,61 +226,42 @@ export default function EditBrochureView() {
         </h1>
 
         <p className="text-gray-500">
-          Ubah informasi brosur.
+          Perbarui informasi brosur.
         </p>
-
-      </div>
-
-      <div className="rounded-2xl bg-white p-8 shadow-sm">
-
-        <label className="mb-2 block font-medium">
-          {previewUrl ? "New Image Preview" : "Current Image"}
-        </label>
-
-        {displaySrc ? (
-          <div className="relative h-48 w-80 overflow-hidden rounded-xl">
-            <Image
-              src={displaySrc}
-              alt="Brochure image"
-              fill
-              className="object-cover"
-            />
-          </div>
-        ) : (
-          <div className="flex h-48 w-80 items-center justify-center rounded-xl bg-gray-200">
-            <span className="text-sm text-gray-400">
-              No image
-            </span>
-          </div>
-        )}
-
-        <div className="mt-4">
-
-          <label className="mb-2 block font-medium">
-            Change Image
-          </label>
-
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/jpg,image/webp"
-            onChange={handleImageChange}
-            className="w-full rounded-xl border p-3 text-sm outline-none focus:border-orange-500"
-          />
-
-          {newImage && (
-            <p className="mt-2 text-sm text-gray-500">
-              {newImage.name}
-            </p>
-          )}
-
-        </div>
 
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 rounded-2xl bg-white p-8 shadow-sm"
+        className="space-y-6 rounded-2xl bg-white p-8 shadow-sm"
       >
+
+        <div>
+
+          <label className="mb-2 block font-medium">
+            Image
+          </label>
+
+          <div className="relative mb-4 h-56 w-full overflow-hidden rounded-xl border">
+
+            <Image
+              src={displayImage}
+              alt={title}
+              fill
+              className="object-cover"
+            />
+
+          </div>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={
+              handleImageChange
+            }
+          />
+
+        </div>
 
         <div>
 
@@ -274,26 +273,11 @@ export default function EditBrochureView() {
             type="text"
             value={title}
             onChange={(e) =>
-              setTitle(e.target.value)
+              setTitle(
+                e.target.value
+              )
             }
-            className="w-full rounded-xl border p-3 outline-none focus:border-orange-500"
-          />
-
-        </div>
-
-        <div>
-
-          <label className="mb-2 block font-medium">
-            Price
-          </label>
-
-          <input
-            type="number"
-            value={price}
-            onChange={(e) =>
-              setPrice(e.target.value)
-            }
-            className="w-full rounded-xl border p-3 outline-none focus:border-orange-500"
+            className="w-full rounded-xl border p-3"
           />
 
         </div>
@@ -306,13 +290,15 @@ export default function EditBrochureView() {
 
           <textarea
             rows={3}
-            value={shortDescription}
+            value={
+              shortDescription
+            }
             onChange={(e) =>
               setShortDescription(
                 e.target.value
               )
             }
-            className="w-full rounded-xl border p-3 outline-none focus:border-orange-500"
+            className="w-full rounded-xl border p-3"
           />
 
         </div>
@@ -331,7 +317,7 @@ export default function EditBrochureView() {
                 e.target.value
               )
             }
-            className="w-full rounded-xl border p-3 outline-none focus:border-orange-500"
+            className="w-full rounded-xl border p-3"
           />
 
         </div>
@@ -339,7 +325,7 @@ export default function EditBrochureView() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-400"
+          className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white"
         >
           {saving
             ? "Updating..."
@@ -347,6 +333,10 @@ export default function EditBrochureView() {
         </button>
 
       </form>
+
+      <PackageSection
+        brochureId={Number(id)}
+      />
 
     </div>
   );

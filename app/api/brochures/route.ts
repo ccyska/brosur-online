@@ -1,84 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import BrochureService from "@/services/BrochureService";
+import BrochurePackageService from "@/services/BrochurePackageService";
 
-export async function GET(
-  request: NextRequest
-) {
-  try {
-    const keyword =
-      request.nextUrl.searchParams.get(
-        "search"
-      );
-
-    const brochures = keyword
-      ? await BrochureService.search(
-          keyword
-        )
-      : await BrochureService.getAll();
-
-    return NextResponse.json({
-      success: true,
-      data: brochures,
-    });
-  } catch (error) {
-    console.error(error);
-
-    return NextResponse.json(
-      {
-        success: false,
-        message:
-          "Gagal mengambil data.",
-      },
-      {
-        status: 500,
-      }
-    );
-  }
+interface RouteParams {
+  params: Promise<{
+    slug: string;
+  }>;
 }
 
-export async function POST(
-  request: NextRequest
+export async function GET(
+  request: NextRequest,
+  { params }: RouteParams
 ) {
   try {
-    const body =
-      await request.json();
+    const { slug } = await params;
 
-const {
-  title,
-  image,
-  short_description,
-  description,
-} = body;
+    const brochure =
+      await BrochureService.getBySlug(slug);
 
-    if (!title) {
+    if (!brochure) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Judul brosur wajib diisi.",
+          message: "Brosur tidak ditemukan.",
         },
         {
-          status: 400,
+          status: 404,
         }
       );
     }
 
-    const slug = title
-      .toLowerCase()
-      .replace(/\s+/g, "-");
-
-await BrochureService.create({
-  title,
-  slug,
-  image,
-  short_description,
-  description,
-});
+    const packages =
+      await BrochurePackageService.getByBrochureId(
+        brochure.id
+      );
 
     return NextResponse.json({
       success: true,
-      message:
-        "Brosur berhasil ditambahkan.",
+      brochure,
+      packages,
     });
   } catch (error) {
     console.error(error);
@@ -86,8 +46,7 @@ await BrochureService.create({
     return NextResponse.json(
       {
         success: false,
-        message:
-          "Terjadi kesalahan.",
+        message: "Terjadi kesalahan.",
       },
       {
         status: 500,

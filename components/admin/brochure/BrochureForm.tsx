@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import FormInput from "./FormInput";
 import ImageUpload from "./ImageUpload";
@@ -10,20 +10,15 @@ export default function BrochureForm() {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("");
-  const [shortDescription, setShortDescription] =
-    useState("");
-  const [description, setDescription] =
-    useState("");
-  const [image, setImage] =
-    useState<File | null>(null);
+  const [shortDescription, setShortDescription] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState<File | null>(null);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (
+  async function handleSubmit(
     e: FormEvent<HTMLFormElement>
-  ) => {
+  ) {
     e.preventDefault();
 
     if (!title.trim()) {
@@ -36,20 +31,18 @@ export default function BrochureForm() {
 
       let imageName = "default.png";
 
-      // ==========================
-      // Upload Image
-      // ==========================
-
+      // Upload gambar
       if (image) {
         const formData = new FormData();
-
         formData.append("file", image);
 
-        const uploadResponse =
-          await fetch("/api/upload", {
+        const uploadResponse = await fetch(
+          "/api/upload",
+          {
             method: "POST",
             body: formData,
-          });
+          }
+        );
 
         const uploadResult =
           await uploadResponse.json();
@@ -62,10 +55,7 @@ export default function BrochureForm() {
         imageName = uploadResult.filename;
       }
 
-      // ==========================
-      // Save Brochure
-      // ==========================
-
+      // Simpan brosur
       const response = await fetch(
         "/api/brochures",
         {
@@ -77,10 +67,6 @@ export default function BrochureForm() {
           body: JSON.stringify({
             title,
             image: imageName,
-            price:
-              price === ""
-                ? null
-                : Number(price),
             short_description:
               shortDescription,
             description,
@@ -102,12 +88,11 @@ export default function BrochureForm() {
       router.refresh();
     } catch (error) {
       console.error(error);
-
       alert("Terjadi kesalahan.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <form
@@ -121,17 +106,6 @@ export default function BrochureForm() {
         value={title}
         onChange={(e) =>
           setTitle(e.target.value)
-        }
-      />
-
-      <FormInput
-        label="Price"
-        name="price"
-        type="number"
-        placeholder="Masukkan harga"
-        value={price}
-        onChange={(e) =>
-          setPrice(e.target.value)
         }
       />
 

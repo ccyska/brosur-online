@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 
 import BrochureRow from "./BrochureRow";
 import EmptyState from "./EmptyState";
+import BrochureCard from "./BrochureCard";
 
 interface Brochure {
   id: number;
   title: string;
+  slug: string;
   image: string;
-  price: number | null;
+  short_description: string | null;
   created_at: string;
 }
 
@@ -48,7 +50,9 @@ export default function BrochureTable({
 
       const result = await response.json();
 
-      setBrochures(result.data);
+      if (result.success) {
+        setBrochures(result.data);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -61,9 +65,7 @@ export default function BrochureTable({
       "Apakah Anda yakin ingin menghapus brosur ini?"
     );
 
-    if (!confirmDelete) {
-      return;
-    }
+    if (!confirmDelete) return;
 
     try {
       const response = await fetch(
@@ -83,10 +85,7 @@ export default function BrochureTable({
       alert(result.message);
 
       setBrochures((prev) =>
-        prev.filter(
-          (brochure) =>
-            brochure.id !== id
-        )
+        prev.filter((item) => item.id !== id)
       );
     } catch (error) {
       console.error(error);
@@ -96,13 +95,13 @@ export default function BrochureTable({
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-white p-8 text-center">
+      <div className="rounded-2xl bg-white p-10 text-center">
         Loading...
       </div>
     );
   }
 
-  if (brochures.length === 0) {
+  if (!brochures.length) {
     return (
       <div className="rounded-2xl bg-white">
         <EmptyState />
@@ -110,43 +109,19 @@ export default function BrochureTable({
     );
   }
 
-  return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
-      <table className="w-full">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="px-6 py-4 text-left">
-              Image
-            </th>
+ return (
+  <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
 
-            <th className="text-left">
-              Title
-            </th>
+    {brochures.map((brochure) => (
 
-            <th className="text-left">
-              Price
-            </th>
+      <BrochureCard
+        key={brochure.id}
+        brochure={brochure}
+        onDelete={handleDelete}
+      />
 
-            <th className="text-left">
-              Created
-            </th>
+    ))}
 
-            <th className="text-left">
-              Action
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {brochures.map((brochure) => (
-            <BrochureRow
-              key={brochure.id}
-              brochure={brochure}
-              onDelete={handleDelete}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  </div>
+);
 }

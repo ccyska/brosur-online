@@ -1,63 +1,87 @@
 "use client";
 
-interface Package {
-  id: number;
-  package_name: string;
-  speed: string;
-  price: number;
-  badge: string | null;
-  short_description: string | null;
-}
+import Image from "next/image";
+import Link from "next/link";
+import { Pencil, Trash2, Package } from "lucide-react";
 
 interface Props {
-  pkg: Package;
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
+  brochure: {
+    id: number;
+    title: string;
+    slug: string;
+    image: string;
+    short_description: string | null;
+  };
+
+  onDelete?: (id: number) => void;
 }
 
-export default function PackageCard({
-  pkg,
-  onEdit,
+
+
+export default function BrochureCard({
+  brochure,
   onDelete,
 }: Props) {
   return (
-    <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-lg">
+    <div className="overflow-hidden rounded-3xl bg-white shadow-md transition hover:-translate-y-1 hover:shadow-xl">
 
-      {pkg.badge && (
-        <span className="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-600">
-          {pkg.badge}
-        </span>
-      )}
+      <div className="relative h-56 w-full">
 
-      <h2 className="mt-4 text-2xl font-bold text-gray-900">
-        {pkg.package_name}
-      </h2>
+        <Image
+          src={`/uploads/${brochure.image}`}
+          alt={brochure.title}
+          fill
+          className="object-cover"
+        />
 
-      <h3 className="mt-4 text-3xl font-bold text-orange-500">
-        Rp {Number(pkg.price).toLocaleString("id-ID")}
-      </h3>
+      </div>
 
-      {pkg.short_description && (
-        <p className="mt-4 text-gray-600">
-          {pkg.short_description}
-        </p>
-      )}
+      <div className="space-y-5 p-6">
 
-      <div className="mt-8 flex gap-3">
+        <div>
 
-        <button
-          onClick={() => onEdit(pkg.id)}
-          className="flex-1 rounded-xl bg-orange-500 py-3 font-semibold text-white transition hover:bg-orange-600"
-        >
-          Edit
-        </button>
+          <h2 className="text-2xl font-bold">
+            {brochure.title}
+          </h2>
 
-        <button
-          onClick={() => onDelete(pkg.id)}
-          className="flex-1 rounded-xl border border-red-500 py-3 font-semibold text-red-500 transition hover:bg-red-500 hover:text-white"
-        >
-          Hapus
-        </button>
+          <p className="mt-2 text-gray-500">
+            {brochure.short_description ??
+              "Tidak ada deskripsi."}
+          </p>
+
+        </div>
+
+        <div className="space-y-3">
+
+          <Link
+            href={`/admin/brochures/${brochure.id}`}
+            className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3 font-semibold text-white transition hover:bg-orange-600"
+          >
+            <Package size={18} />
+            Kelola Paket
+          </Link>
+
+          <div className="grid grid-cols-2 gap-3">
+
+            <Link
+              href={`/admin/brochures/edit/${brochure.id}`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-blue-500 py-3 font-semibold text-blue-500 transition hover:bg-blue-500 hover:text-white"
+            >
+              <Pencil size={18} />
+              Edit
+            </Link>
+
+           <button
+  onClick={() => onDelete?.(brochure.id)}
+  className="flex items-center justify-center gap-2 rounded-xl border border-red-500 py-3 font-semibold text-red-500 transition hover:bg-red-500 hover:text-white"
+>
+  <Trash2 size={18} />
+  Hapus
+</button>
+
+          </div>
+
+        </div>
 
       </div>
 

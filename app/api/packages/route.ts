@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import PackageService from "@/services/PackageService";
+import BrochurePackageService from "@/services/BrochurePackageService";
 
 export async function GET(
   request: NextRequest
@@ -18,7 +18,7 @@ export async function GET(
     }
 
     const packages =
-      await PackageService.getByBrochure(
+      await BrochurePackageService.getByBrochureId(
         Number(brochureId)
       );
 
@@ -45,7 +45,8 @@ export async function POST(
   request: NextRequest
 ) {
   try {
-    const body = await request.json();
+    const body =
+      await request.json();
 
     const {
       brochure_id,
@@ -66,7 +67,8 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          message: "Data wajib diisi.",
+          message:
+            "Data wajib diisi.",
         },
         {
           status: 400,
@@ -74,7 +76,7 @@ export async function POST(
       );
     }
 
-    await PackageService.create({
+    await BrochurePackageService.create({
       brochure_id,
       package_name,
       speed,
@@ -86,7 +88,8 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: "Paket berhasil ditambahkan.",
+      message:
+        "Paket berhasil ditambahkan.",
     });
   } catch (error) {
     console.error(error);
@@ -94,7 +97,8 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        message: "Terjadi kesalahan.",
+        message:
+          "Terjadi kesalahan.",
       },
       {
         status: 500,

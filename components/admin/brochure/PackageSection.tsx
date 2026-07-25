@@ -1,70 +1,161 @@
 "use client";
 
-interface Package {
-  id: number;
-  package_name: string;
-  speed: string;
-  price: number;
-  badge: string | null;
-  short_description: string | null;
-}
+import { useEffect, useState } from "react";
+import PackageCard, { Package } from "./PackageCard";
 
 interface Props {
-  pkg: Package;
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
+  brochureId: number;
 }
 
-export default function PackageCard({
-  pkg,
-  onEdit,
-  onDelete,
+export default function PackageSection({
+  brochureId,
 }: Props) {
+
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+    fetchPackages();
+  }, [brochureId]);
+
+
+  async function fetchPackages() {
+    try {
+
+      const response = await fetch(
+        `/api/packages?brochureId=${brochureId}`
+      );
+
+      const result = await response.json();
+
+
+      if (result.success) {
+        setPackages(result.data);
+      }
+
+
+    } catch (error) {
+
+      console.error(error);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  }
+
+
+  function handleEdit(id: number) {
+
+    console.log(
+      "Edit package:",
+      id
+    );
+
+  }
+
+
+  async function handleDelete(id: number) {
+
+    const confirmDelete =
+      confirm(
+        "Hapus paket ini?"
+      );
+
+
+    if (!confirmDelete) return;
+
+
+    try {
+
+      await fetch(
+        `/api/packages/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+
+      fetchPackages();
+
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  }
+
+
+
+  if (loading) {
+
+    return (
+      <section className="rounded-2xl bg-white p-8 shadow-sm">
+        Loading package...
+      </section>
+    );
+
+  }
+
+
+
   return (
-    <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-lg">
+    <section className="rounded-2xl bg-white p-8 shadow-sm">
 
-      {pkg.badge && (
-        <span className="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-600">
-          {pkg.badge}
-        </span>
-      )}
 
-      <h2 className="mt-4 text-2xl font-bold text-gray-900">
-        {pkg.package_name}
-      </h2>
+      <div className="mb-6">
 
-      <p className="mt-2 text-gray-500">
-        {pkg.speed}
-      </p>
+        <h2 className="text-2xl font-bold">
+          Package
+        </h2>
 
-      <h3 className="mt-4 text-3xl font-bold text-orange-500">
-        Rp {Number(pkg.price).toLocaleString("id-ID")}
-      </h3>
 
-      {pkg.short_description && (
-        <p className="mt-4 text-gray-600">
-          {pkg.short_description}
+        <p className="text-gray-500">
+          Kelola paket untuk brosur ini
         </p>
-      )}
-
-      <div className="mt-8 flex gap-3">
-
-        <button
-          onClick={() => onEdit(pkg.id)}
-          className="flex-1 rounded-xl bg-orange-500 py-3 font-semibold text-white transition hover:bg-orange-600"
-        >
-          Edit
-        </button>
-
-        <button
-          onClick={() => onDelete(pkg.id)}
-          className="flex-1 rounded-xl border border-red-500 py-3 font-semibold text-red-500 transition hover:bg-red-500 hover:text-white"
-        >
-          Hapus
-        </button>
 
       </div>
 
-    </div>
+
+
+      {packages.length === 0 ? (
+
+        <div className="rounded-xl border border-dashed p-8 text-center text-gray-500">
+
+          Belum ada paket.
+
+        </div>
+
+
+      ) : (
+
+        <div className="grid gap-6 md:grid-cols-2">
+
+          {packages.map((pkg) => (
+
+            <PackageCard
+
+              key={pkg.id}
+
+              pkg={pkg}
+
+              onEdit={handleEdit}
+
+              onDelete={handleDelete}
+
+            />
+
+          ))}
+
+        </div>
+
+      )}
+
+
+    </section>
   );
 }
