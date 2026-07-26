@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import BrochureService from "@/services/BrochureService";
+import BrochurePackageService from "@/services/BrochurePackageService";
 
 interface RouteParams {
   params: Promise<{
@@ -23,13 +25,23 @@ export async function GET(
           success: false,
           message: "Brosur tidak ditemukan.",
         },
-        { status: 404 }
+        {
+          status: 404,
+        }
       );
     }
 
+    const packages =
+      await BrochurePackageService.getBySlug(
+        slug
+      );
+
     return NextResponse.json({
       success: true,
-      data: brochure,
+      data: {
+        brochure,
+        packages,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -39,7 +51,9 @@ export async function GET(
         success: false,
         message: "Terjadi kesalahan.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

@@ -29,6 +29,17 @@ export default class BrochurePackageService {
   }
 
   /**
+   * Mengambil semua paket berdasarkan slug brosur
+   */
+  static async getBySlug(
+    slug: string
+  ) {
+    return await BrochurePackageRepository.getBySlug(
+      slug
+    );
+  }
+
+  /**
    * Menambahkan paket
    */
   static async create(

@@ -1,7 +1,19 @@
-export default function BrochureDetailPage() {
+import BrochureDetailView from "@/views/public/BrochureDetailView";
+
+interface Props {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
+export default async function PublicBrochurePage({
+  params,
+}: Props) {
+  const { slug } = await params;
+
   return (
-    <div className="p-10">
-      <h1>Brochure Detail</h1>
-    </div>
+    <BrochureDetailView
+      slug={slug}
+    />
   );
 }

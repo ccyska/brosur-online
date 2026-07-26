@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 import FormInput from "./FormInput";
 import ImageUpload from "./ImageUpload";
@@ -10,11 +11,15 @@ export default function BrochureForm() {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
-  const [shortDescription, setShortDescription] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [shortDescription, setShortDescription] =
+    useState("");
+  const [description, setDescription] =
+    useState("");
+  const [image, setImage] =
+    useState<File | null>(null);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   async function handleSubmit(
     e: FormEvent<HTMLFormElement>
@@ -22,7 +27,13 @@ export default function BrochureForm() {
     e.preventDefault();
 
     if (!title.trim()) {
-      alert("Judul brosur wajib diisi.");
+      await Swal.fire({
+        icon: "warning",
+        title: "Judul Belum Diisi",
+        text: "Silakan isi judul brosur terlebih dahulu.",
+        confirmButtonColor: "#f97316",
+      });
+
       return;
     }
 
@@ -48,7 +59,13 @@ export default function BrochureForm() {
           await uploadResponse.json();
 
         if (!uploadResult.success) {
-          alert(uploadResult.message);
+          await Swal.fire({
+            icon: "error",
+            title: "Upload Gagal",
+            text: uploadResult.message,
+            confirmButtonColor: "#ef4444",
+          });
+
           return;
         }
 
@@ -78,17 +95,36 @@ export default function BrochureForm() {
         await response.json();
 
       if (!result.success) {
-        alert(result.message);
+        await Swal.fire({
+          icon: "error",
+          title: "Gagal Menyimpan",
+          text: result.message,
+          confirmButtonColor: "#ef4444",
+        });
+
         return;
       }
 
-      alert(result.message);
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: result.message,
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
 
       router.push("/admin/brochures");
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan.");
+
+      await Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: "Server sedang bermasalah.",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
       setLoading(false);
     }

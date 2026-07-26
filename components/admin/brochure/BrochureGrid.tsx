@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import BrochureCard from "./BrochureCard";
 
 interface Brochure {
@@ -45,17 +46,32 @@ export default function BrochureGrid({
       }
     } catch (error) {
       console.error(error);
+
+      await Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: "Gagal mengambil data brosur.",
+        confirmButtonColor: "#f97316",
+      });
     } finally {
       setLoading(false);
     }
   }
 
   async function handleDelete(id: number) {
-    const confirmDelete = window.confirm(
-      "Apakah Anda yakin ingin menghapus brosur ini?"
-    );
+    const confirmDelete = await Swal.fire({
+      title: "Hapus Brosur?",
+      text: "Data brosur yang dihapus tidak dapat dikembalikan.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#9ca3af",
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+      reverseButtons: true,
+    });
 
-    if (!confirmDelete) return;
+    if (!confirmDelete.isConfirmed) return;
 
     try {
       const response = await fetch(
@@ -68,20 +84,38 @@ export default function BrochureGrid({
       const result = await response.json();
 
       if (!result.success) {
-        alert(result.message);
+        await Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: result.message,
+          confirmButtonColor: "#ef4444",
+        });
+
         return;
       }
-
-      alert(result.message);
 
       setBrochures((prev) =>
         prev.filter(
           (brochure) => brochure.id !== id
         )
       );
+
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: result.message,
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan.");
+
+      await Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: "Gagal menghapus brosur.",
+        confirmButtonColor: "#ef4444",
+      });
     }
   }
 

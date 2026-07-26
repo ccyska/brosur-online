@@ -1,23 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 
-export function middleware(request: NextRequest) {
-  const session = request.cookies.get("admin_session");
+export async function middleware(
+  request: NextRequest
+) {
+  const pathname =
+    request.nextUrl.pathname;
 
-  const isLoginPage = request.nextUrl.pathname === "/admin/login";
+  if (pathname === "/admin/login") {
+    return NextResponse.next();
+  }
 
-  if (!session && !isLoginPage) {
+  const token =
+    request.cookies.get("admin_session")
+      ?.value;
+
+  if (!token) {
     return NextResponse.redirect(
-      new URL("/admin/login", request.url)
+      new URL(
+        "/admin/login",
+        request.url
+      )
     );
   }
 
-  // if (session && isLoginPage) {
-  //   return NextResponse.redirect(
-  //     new URL("/admin/dashboard", request.url)
-  //   );
-  // }
+  try {
+    const secret =
+      new TextEncoder().encode(
+        process.env.JWT_SECRET!
+      );
 
-  return NextResponse.next();
+    await jwtVerify(token, secret);
+
+    return NextResponse.next();
+  } catch {
+    const response =
+      NextResponse.redirect(
+        new URL(
+          "/admin/login",
+          request.url
+        )
+      );
+
+    response.cookies.delete(
+      "admin_session"
+    );
+
+    return response;
+  }
 }
 
 export const config = {

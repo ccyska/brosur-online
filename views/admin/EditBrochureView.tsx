@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import Swal from "sweetalert2";
 
 import PackageSection from "@/components/admin/brochure/PackageSection";
 
@@ -12,7 +13,7 @@ interface Brochure {
   slug: string;
   image: string;
   short_description: string | null;
-  description: string | null;
+  description: string |null;
 }
 
 export default function EditBrochureView() {
@@ -50,7 +51,13 @@ export default function EditBrochureView() {
       const result = await response.json();
 
       if (!result.success) {
-        alert(result.message);
+        await Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: result.message,
+          confirmButtonColor: "#f97316",
+        });
+
         return;
       }
 
@@ -69,7 +76,13 @@ export default function EditBrochureView() {
       );
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan.");
+
+      await Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: "Gagal mengambil data brosur.",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
       setLoading(false);
     }
@@ -91,9 +104,13 @@ export default function EditBrochureView() {
     ];
 
     if (!allowed.includes(file.type)) {
-      alert(
-        "Gunakan PNG, JPG atau WEBP."
-      );
+      Swal.fire({
+        icon: "warning",
+        title: "Format Tidak Didukung",
+        text: "Gunakan file PNG, JPG atau WEBP.",
+        confirmButtonColor: "#f97316",
+      });
+
       return;
     }
 
@@ -115,9 +132,13 @@ export default function EditBrochureView() {
     e.preventDefault();
 
     if (!title.trim()) {
-      alert(
-        "Judul brosur wajib diisi."
-      );
+      await Swal.fire({
+        icon: "warning",
+        title: "Judul Belum Diisi",
+        text: "Silakan isi judul brosur.",
+        confirmButtonColor: "#f97316",
+      });
+
       return;
     }
 
@@ -150,9 +171,13 @@ export default function EditBrochureView() {
         if (
           !uploadResult.success
         ) {
-          alert(
-            uploadResult.message
-          );
+          await Swal.fire({
+            icon: "error",
+            title: "Upload Gagal",
+            text: uploadResult.message,
+            confirmButtonColor: "#ef4444",
+          });
+
           return;
         }
 
@@ -185,20 +210,36 @@ export default function EditBrochureView() {
 
       const result =
         await response.json();
+              if (!result.success) {
+        await Swal.fire({
+          icon: "error",
+          title: "Update Gagal",
+          text: result.message,
+          confirmButtonColor: "#ef4444",
+        });
 
-      if (!result.success) {
-        alert(result.message);
         return;
       }
 
-      alert(result.message);
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: result.message,
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
 
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert(
-        "Terjadi kesalahan."
-      );
+
+      await Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: "Server sedang bermasalah.",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
       setSaving(false);
     }
@@ -256,9 +297,7 @@ export default function EditBrochureView() {
           <input
             type="file"
             accept="image/*"
-            onChange={
-              handleImageChange
-            }
+            onChange={handleImageChange}
           />
 
         </div>
@@ -273,9 +312,7 @@ export default function EditBrochureView() {
             type="text"
             value={title}
             onChange={(e) =>
-              setTitle(
-                e.target.value
-              )
+              setTitle(e.target.value)
             }
             className="w-full rounded-xl border p-3"
           />
@@ -290,9 +327,7 @@ export default function EditBrochureView() {
 
           <textarea
             rows={3}
-            value={
-              shortDescription
-            }
+            value={shortDescription}
             onChange={(e) =>
               setShortDescription(
                 e.target.value
@@ -325,7 +360,7 @@ export default function EditBrochureView() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white"
+          className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:bg-gray-400"
         >
           {saving
             ? "Updating..."

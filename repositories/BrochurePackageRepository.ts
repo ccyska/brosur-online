@@ -8,7 +8,7 @@ export interface BrochurePackage extends RowDataPacket {
   speed: string;
   price: number;
   badge: string | null;
-  short_description: string | null;
+  short_description: string |null;
   description: string | null;
   created_at: Date;
   updated_at: Date;
@@ -25,9 +25,6 @@ export interface CreateBrochurePackageData {
 }
 
 export default class BrochurePackageRepository {
-  /**
-   * Mengambil semua paket
-   */
   static async getAll(): Promise<BrochurePackage[]> {
     const [rows] = await db.query<BrochurePackage[]>(
       `
@@ -40,9 +37,6 @@ export default class BrochurePackageRepository {
     return rows;
   }
 
-  /**
-   * Mengambil paket berdasarkan id
-   */
   static async getById(
     id: number
   ): Promise<BrochurePackage | null> {
@@ -59,9 +53,6 @@ export default class BrochurePackageRepository {
     return rows.length ? rows[0] : null;
   }
 
-  /**
-   * Mengambil semua paket berdasarkan brosur
-   */
   static async getByBrochureId(
     brochureId: number
   ): Promise<BrochurePackage[]> {
@@ -78,15 +69,33 @@ export default class BrochurePackageRepository {
     return rows;
   }
 
-  /**
-   * Menambahkan paket
-   */
+  // ============================
+  // BARU
+  // ============================
+  static async getBySlug(
+    slug: string
+  ): Promise<BrochurePackage[]> {
+    const [rows] = await db.query<BrochurePackage[]>(
+      `
+      SELECT bp.*
+      FROM brochure_packages bp
+      INNER JOIN brochures b
+      ON bp.brochure_id = b.id
+      WHERE b.slug = ?
+      ORDER BY bp.price ASC
+      `,
+      [slug]
+    );
+
+    return rows;
+  }
+
   static async create(
     data: CreateBrochurePackageData
   ): Promise<void> {
     await db.query(
       `
-      INSERT INTO brochure_packages (
+      INSERT INTO brochure_packages(
         brochure_id,
         package_name,
         speed,
@@ -95,7 +104,7 @@ export default class BrochurePackageRepository {
         short_description,
         description
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      VALUES(?,?,?,?,?,?,?)
       `,
       [
         data.brochure_id,
@@ -109,9 +118,6 @@ export default class BrochurePackageRepository {
     );
   }
 
-  /**
-   * Mengubah paket
-   */
   static async update(
     id: number,
     data: CreateBrochurePackageData
@@ -120,14 +126,14 @@ export default class BrochurePackageRepository {
       `
       UPDATE brochure_packages
       SET
-        brochure_id = ?,
-        package_name = ?,
-        speed = ?,
-        price = ?,
-        badge = ?,
-        short_description = ?,
-        description = ?
-      WHERE id = ?
+        brochure_id=?,
+        package_name=?,
+        speed=?,
+        price=?,
+        badge=?,
+        short_description=?,
+        description=?
+      WHERE id=?
       `,
       [
         data.brochure_id,
@@ -142,16 +148,13 @@ export default class BrochurePackageRepository {
     );
   }
 
-  /**
-   * Menghapus paket
-   */
   static async delete(
     id: number
   ): Promise<void> {
     await db.query(
       `
       DELETE FROM brochure_packages
-      WHERE id = ?
+      WHERE id=?
       `,
       [id]
     );

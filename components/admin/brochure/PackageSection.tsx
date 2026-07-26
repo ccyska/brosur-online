@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
 import PackageCard, { Package } from "./PackageCard";
 import PackageModal from "./PackageModal";
@@ -36,6 +37,13 @@ export default function PackageSection({
       }
     } catch (error) {
       console.error(error);
+
+      await Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: "Gagal mengambil data paket.",
+        confirmButtonColor: "#f97316",
+      });
     } finally {
       setLoading(false);
     }
@@ -46,11 +54,18 @@ export default function PackageSection({
   }
 
   async function handleDelete(id: number) {
-    const confirmDelete = window.confirm(
-      "Hapus paket ini?"
-    );
+    const confirm = await Swal.fire({
+      title: "Hapus Paket?",
+      text: "Paket yang dihapus tidak dapat dikembalikan.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#f97316",
+      cancelButtonColor: "#6b7280",
+    });
 
-    if (!confirmDelete) return;
+    if (!confirm.isConfirmed) return;
 
     try {
       const response = await fetch(
@@ -63,13 +78,34 @@ export default function PackageSection({
       const result = await response.json();
 
       if (!result.success) {
-        alert(result.message);
+        await Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: result.message,
+          confirmButtonColor: "#ef4444",
+        });
+
         return;
       }
+
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: "Paket berhasil dihapus.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
 
       fetchPackages();
     } catch (error) {
       console.error(error);
+
+      await Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: "Server sedang bermasalah.",
+        confirmButtonColor: "#ef4444",
+      });
     }
   }
 
@@ -84,11 +120,8 @@ export default function PackageSection({
   return (
     <>
       <section className="rounded-2xl bg-white p-8 shadow-sm">
-
         <div className="mb-6 flex items-center justify-between">
-
           <div>
-
             <h2 className="text-2xl font-bold">
               Package
             </h2>
@@ -96,7 +129,6 @@ export default function PackageSection({
             <p className="text-gray-500">
               Kelola paket untuk brosur ini
             </p>
-
           </div>
 
           <button
@@ -105,19 +137,14 @@ export default function PackageSection({
           >
             + Tambah Package
           </button>
-
         </div>
 
         {packages.length === 0 ? (
-
           <div className="rounded-xl border border-dashed p-8 text-center text-gray-500">
             Belum ada paket.
           </div>
-
         ) : (
-
           <div className="grid gap-6 md:grid-cols-2">
-
             {packages.map((pkg) => (
               <PackageCard
                 key={pkg.id}
@@ -126,11 +153,8 @@ export default function PackageSection({
                 onDelete={handleDelete}
               />
             ))}
-
           </div>
-
         )}
-
       </section>
 
       <PackageModal

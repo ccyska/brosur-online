@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import AuthService from "@/services/AuthService";
+import { SignJWT } from "jose";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,29 +20,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const admin = await AuthService.login(
-      username,
-      password
-    );
+const admin = await AuthService.login(
+  username,
+  password
+);
 
-    const response = NextResponse.json({
-      success: true,
-      message: "Login berhasil",
-      data: {
-        id: admin.id,
-        username: admin.username,
-      },
-    });
+const secret = new TextEncoder().encode(
+  process.env.JWT_SECRET!
+);
 
-    response.cookies.set("admin_session", admin.id.toString(), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
+const token = await new SignJWT({
+  id: admin.id,
+  username: admin.username,
+})
+  .setProtectedHeader({
+    alg: "HS256",
+  })
+  .setExpirationTime("1d")
+  .sign(secret);
 
-    return response;
+const response = NextResponse.json({
+  success: true,
+  message: "Login berhasil",
+  data: {
+    id: admin.id,
+    username: admin.username,
+  },
+});
+
+response.cookies.set("admin_session", token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  path: "/",
+  maxAge: 60 * 60 * 24,
+});
+
+return response;
   } catch (error: unknown) {
     return NextResponse.json(
       {

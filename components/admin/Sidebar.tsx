@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   FileText,
@@ -10,6 +10,7 @@ import {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   const menus = [
     {
@@ -24,20 +25,30 @@ export default function Sidebar() {
     },
   ];
 
+  async function handleLogout() {
+    try {
+      await fetch("/api/logout", {
+        method: "POST",
+      });
+
+      router.push("/admin/login");
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      alert("Logout gagal.");
+    }
+  }
+
   return (
     <aside className="flex h-screen w-[275px] flex-col justify-between bg-[#111111] px-4 py-5 text-white">
 
-      {/* Logo */}
       <div>
 
         <div className="mb-14">
-
           <h1 className="text-3xl font-bold tracking-wide">
-            Naratel
+            E-Brochure
           </h1>
         </div>
-
-        {/* Menu */}
 
         <nav className="space-y-3">
 
@@ -62,6 +73,7 @@ export default function Sidebar() {
                 <span className="text-[15px] font-medium">
                   {menu.title}
                 </span>
+
               </Link>
             );
           })}
@@ -69,8 +81,6 @@ export default function Sidebar() {
         </nav>
 
       </div>
-
-      {/* Bottom */}
 
       <div>
 
@@ -94,12 +104,12 @@ export default function Sidebar() {
 
         </div>
 
-        <button className="flex w-full items-center justify-center gap-3 rounded-2xl border border-[#2D2D2D] py-4 text-gray-300 transition hover:bg-red-500 hover:text-white">
-
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-3 rounded-2xl border border-[#2D2D2D] py-4 text-gray-300 transition hover:bg-red-500 hover:text-white"
+        >
           <LogOut size={20} />
-
           Logout
-
         </button>
 
       </div>

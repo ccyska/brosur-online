@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
 interface Props {
   brochureId: number;
@@ -47,6 +48,13 @@ export default function PackageForm({
       );
     } catch (error) {
       console.error(error);
+
+      await Swal.fire({
+        icon: "error",
+        title: "Gagal",
+        text: "Gagal mengambil data paket.",
+        confirmButtonColor: "#f97316",
+      });
     }
   }
 
@@ -56,7 +64,13 @@ export default function PackageForm({
     e.preventDefault();
 
     if (!speed || !price) {
-      alert("Kecepatan dan harga wajib diisi.");
+      await Swal.fire({
+        icon: "warning",
+        title: "Data Belum Lengkap",
+        text: "Kecepatan dan harga wajib diisi.",
+        confirmButtonColor: "#f97316",
+      });
+
       return;
     }
 
@@ -78,9 +92,7 @@ export default function PackageForm({
           ? `/api/packages/${packageId}`
           : "/api/packages",
         {
-          method: packageId
-            ? "PUT"
-            : "POST",
+          method: packageId ? "PUT" : "POST",
           headers: {
             "Content-Type":
               "application/json",
@@ -93,16 +105,38 @@ export default function PackageForm({
         await response.json();
 
       if (!result.success) {
-        alert(result.message);
+        await Swal.fire({
+          icon: "error",
+          title: packageId
+            ? "Update Gagal"
+            : "Tambah Gagal",
+          text: result.message,
+          confirmButtonColor: "#ef4444",
+        });
+
         return;
       }
 
-      alert(result.message);
+      await Swal.fire({
+        icon: "success",
+        title: packageId
+          ? "Berhasil Diupdate"
+          : "Berhasil Ditambahkan",
+        text: result.message,
+        timer: 1700,
+        showConfirmButton: false,
+      });
 
       onClose();
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan.");
+
+      await Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: "Server sedang bermasalah.",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
       setLoading(false);
     }
@@ -113,7 +147,6 @@ export default function PackageForm({
       onSubmit={handleSubmit}
       className="space-y-5"
     >
-
       <div>
         <label className="mb-2 block font-medium">
           Kecepatan (Mbps)
@@ -180,7 +213,6 @@ export default function PackageForm({
       </div>
 
       <div className="flex justify-end gap-3">
-
         <button
           type="button"
           onClick={onClose}
@@ -200,9 +232,7 @@ export default function PackageForm({
             ? "Update"
             : "Simpan"}
         </button>
-
       </div>
-
     </form>
   );
 }

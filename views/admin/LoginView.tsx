@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { login } from "@/lib/api/auth";
+import Swal from "sweetalert2";
 
 export default function LoginView() {
   const router = useRouter();
@@ -23,40 +24,63 @@ export default function LoginView() {
 
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (
-    e: FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
+ const handleLogin = async (
+  e: FormEvent<HTMLFormElement>
+) => {
+  e.preventDefault();
 
-    if (!username || !password) {
-      alert("Username dan Password wajib diisi.");
+  if (!username || !password) {
+    await Swal.fire({
+      icon: "warning",
+      title: "Oops...",
+      text: "Username dan Password wajib diisi.",
+      confirmButtonColor: "#f59e0b",
+    });
+
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const result = await login({
+      username,
+      password,
+    });
+
+    if (!result.success) {
+      await Swal.fire({
+        icon: "error",
+        title: "Login Gagal",
+        text: result.message,
+        confirmButtonColor: "#ef4444",
+      });
+
       return;
     }
 
-    try {
-      setLoading(true);
+    await Swal.fire({
+      icon: "success",
+      title: "Login Berhasil",
+      text: result.message,
+      timer: 1500,
+      showConfirmButton: false,
+    });
 
-      const result = await login({
-        username,
-        password,
-      });
+    router.push("/admin/dashboard");
+  } catch (error) {
+    console.error(error);
 
-      if (!result.success) {
-        alert(result.message);
-        return;
-      }
-
-      alert(result.message);
-
-      router.push("/admin/dashboard");
-    } catch (error) {
-      console.error(error);
-
-      alert("Terjadi kesalahan pada server.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    await Swal.fire({
+      icon: "error",
+      title: "Terjadi Kesalahan",
+      text: "Server sedang bermasalah.",
+      confirmButtonColor: "#ef4444",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#F8F5F2] px-4">
