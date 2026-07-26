@@ -151,8 +151,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const brochure =
-      await BrochureService.getById(Number(id));
+    const brochure = await BrochureService.getById(Number(id));
 
     if (!brochure) {
       return NextResponse.json(
@@ -166,11 +165,12 @@ export async function DELETE(
       );
     }
 
-    // Hapus data dari database
     await BrochureService.delete(Number(id));
 
-    // Hapus gambar jika bukan default.png
-    if (brochure.image !== "default.png") {
+    if (
+      brochure.image &&
+      brochure.image !== "default.png"
+    ) {
       const imagePath = path.join(
         process.cwd(),
         "public",
@@ -180,8 +180,11 @@ export async function DELETE(
 
       try {
         await unlink(imagePath);
-      } catch {
-        // Abaikan jika file tidak ditemukan
+      } catch (fileError) {
+        console.error(
+          "Gagal menghapus gambar:",
+          fileError
+        );
       }
     }
 
@@ -189,13 +192,22 @@ export async function DELETE(
       success: true,
       message: "Brosur berhasil dihapus.",
     });
-  } catch (error) {
-    console.error(error);
+  } catch (error: unknown) {
+    console.error(
+      "DELETE BROCHURE ERROR:",
+      error
+    );
+
+    let message = "Terjadi kesalahan pada server.";
+
+    if (error instanceof Error) {
+      message = error.message;
+    }
 
     return NextResponse.json(
       {
         success: false,
-        message: "Terjadi kesalahan.",
+        message,
       },
       {
         status: 500,

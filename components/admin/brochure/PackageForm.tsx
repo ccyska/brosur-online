@@ -15,18 +15,9 @@ export default function PackageForm({
 }: Props) {
   const [loading, setLoading] = useState(false);
 
-  const [packageName, setPackageName] =
-    useState("");
-
-  const [speed, setSpeed] =
-    useState("");
-
-  const [price, setPrice] =
-    useState("");
-
-  const [badge, setBadge] =
-    useState("");
-
+  const [speed, setSpeed] = useState("");
+  const [price, setPrice] = useState("");
+  const [badge, setBadge] = useState("");
   const [shortDescription, setShortDescription] =
     useState("");
 
@@ -48,8 +39,7 @@ export default function PackageForm({
 
       const data = result.data;
 
-      setPackageName(data.package_name);
-      setSpeed(data.speed);
+      setSpeed(String(data.speed));
       setPrice(String(data.price));
       setBadge(data.badge ?? "");
       setShortDescription(
@@ -65,12 +55,8 @@ export default function PackageForm({
   ) {
     e.preventDefault();
 
-    if (
-      !packageName ||
-      !speed ||
-      !price
-    ) {
-      alert("Semua field wajib diisi.");
+    if (!speed || !price) {
+      alert("Kecepatan dan harga wajib diisi.");
       return;
     }
 
@@ -79,7 +65,7 @@ export default function PackageForm({
 
       const body = {
         brochure_id: brochureId,
-        package_name: packageName,
+        package_name: `${speed} Mbps`,
         speed,
         price: Number(price),
         badge,
@@ -127,37 +113,19 @@ export default function PackageForm({
       onSubmit={handleSubmit}
       className="space-y-5"
     >
-      <div>
-        <label className="mb-2 block font-medium">
-          Nama Paket
-        </label>
-
-        <input
-          type="text"
-          value={packageName}
-          onChange={(e) =>
-            setPackageName(
-              e.target.value
-            )
-          }
-          className="w-full rounded-xl border p-3"
-        />
-      </div>
 
       <div>
         <label className="mb-2 block font-medium">
-          Kecepatan
+          Kecepatan (Mbps)
         </label>
 
         <input
-          type="text"
+          type="number"
           value={speed}
           onChange={(e) =>
-            setSpeed(
-              e.target.value
-            )
+            setSpeed(e.target.value)
           }
-          placeholder="Contoh : 20 Mbps"
+          placeholder="Contoh: 20"
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -171,10 +139,9 @@ export default function PackageForm({
           type="number"
           value={price}
           onChange={(e) =>
-            setPrice(
-              e.target.value
-            )
+            setPrice(e.target.value)
           }
+          placeholder="Contoh: 175000"
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -188,11 +155,9 @@ export default function PackageForm({
           type="text"
           value={badge}
           onChange={(e) =>
-            setBadge(
-              e.target.value
-            )
+            setBadge(e.target.value)
           }
-          placeholder="Promo / Best Seller"
+          placeholder="Contoh: Best Seller"
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -215,6 +180,7 @@ export default function PackageForm({
       </div>
 
       <div className="flex justify-end gap-3">
+
         <button
           type="button"
           onClick={onClose}
@@ -226,7 +192,7 @@ export default function PackageForm({
         <button
           type="submit"
           disabled={loading}
-          className="rounded-xl bg-orange-500 px-5 py-2 font-semibold text-white"
+          className="rounded-xl bg-orange-500 px-5 py-2 font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
         >
           {loading
             ? "Menyimpan..."
@@ -234,7 +200,9 @@ export default function PackageForm({
             ? "Update"
             : "Simpan"}
         </button>
+
       </div>
+
     </form>
   );
 }

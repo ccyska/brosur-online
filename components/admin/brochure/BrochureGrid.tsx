@@ -18,8 +18,11 @@ interface Props {
 export default function BrochureGrid({
   search,
 }: Props) {
-  const [brochures, setBrochures] = useState<Brochure[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [brochures, setBrochures] =
+    useState<Brochure[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
     fetchBrochures();
@@ -30,7 +33,9 @@ export default function BrochureGrid({
       setLoading(true);
 
       const response = await fetch(
-        `/api/brochures?search=${search}`
+        `/api/brochures?search=${encodeURIComponent(
+          search
+        )}`
       );
 
       const result = await response.json();
@@ -42,6 +47,41 @@ export default function BrochureGrid({
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete(id: number) {
+    const confirmDelete = window.confirm(
+      "Apakah Anda yakin ingin menghapus brosur ini?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(
+        `/api/brochures/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const result = await response.json();
+
+      if (!result.success) {
+        alert(result.message);
+        return;
+      }
+
+      alert(result.message);
+
+      setBrochures((prev) =>
+        prev.filter(
+          (brochure) => brochure.id !== id
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan.");
     }
   }
 
@@ -65,8 +105,9 @@ export default function BrochureGrid({
     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
       {brochures.map((brochure) => (
         <BrochureCard
-        key={brochure.id}
+          key={brochure.id}
           brochure={brochure}
+          onDelete={handleDelete}
         />
       ))}
     </div>
