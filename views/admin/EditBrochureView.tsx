@@ -369,9 +369,7 @@ export default function EditBrochureView() {
 
       </form>
 
-      <PackageSection
-        brochureId={Number(id)}
-      />
+    
 
     </div>
   );

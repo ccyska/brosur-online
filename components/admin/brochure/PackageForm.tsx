@@ -16,7 +16,7 @@ export default function PackageForm({
 }: Props) {
   const [loading, setLoading] = useState(false);
 
-  const [speed, setSpeed] = useState("");
+  const [packageName, setPackageName] = useState("");
   const [price, setPrice] = useState("");
   const [badge, setBadge] = useState("");
   const [shortDescription, setShortDescription] =
@@ -40,16 +40,21 @@ export default function PackageForm({
 
       const data = result.data;
 
-      setSpeed(String(data.speed));
-      setPrice(String(data.price));
+      setPackageName(data.package_name ?? "");
+
+      setPrice(
+        Number(data.price).toLocaleString("id-ID")
+      );
+
       setBadge(data.badge ?? "");
+
       setShortDescription(
         data.short_description ?? ""
       );
     } catch (error) {
       console.error(error);
 
-      await Swal.fire({
+      Swal.fire({
         icon: "error",
         title: "Gagal",
         text: "Gagal mengambil data paket.",
@@ -63,11 +68,14 @@ export default function PackageForm({
   ) {
     e.preventDefault();
 
-    if (!speed || !price) {
-      await Swal.fire({
+    if (
+      packageName.trim() === "" ||
+      price.trim() === ""
+    ) {
+      Swal.fire({
         icon: "warning",
         title: "Data Belum Lengkap",
-        text: "Kecepatan dan harga wajib diisi.",
+        text: "Nama Paket dan Harga wajib diisi.",
         confirmButtonColor: "#f97316",
       });
 
@@ -79,11 +87,12 @@ export default function PackageForm({
 
       const body = {
         brochure_id: brochureId,
-        package_name: `${speed} Mbps`,
-        speed,
-        price: Number(price),
-        badge,
-        short_description: shortDescription,
+        package_name: packageName,
+        speed: packageName,
+        price: Number(price.replace(/\./g, "")),
+        badge: badge.trim() || null,
+        short_description:
+          shortDescription.trim() || null,
         description: null,
       };
 
@@ -94,18 +103,16 @@ export default function PackageForm({
         {
           method: packageId ? "PUT" : "POST",
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
         }
       );
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!result.success) {
-        await Swal.fire({
+        Swal.fire({
           icon: "error",
           title: packageId
             ? "Update Gagal"
@@ -117,13 +124,13 @@ export default function PackageForm({
         return;
       }
 
-      await Swal.fire({
+      Swal.fire({
         icon: "success",
         title: packageId
           ? "Berhasil Diupdate"
           : "Berhasil Ditambahkan",
         text: result.message,
-        timer: 1700,
+        timer: 1500,
         showConfirmButton: false,
       });
 
@@ -131,7 +138,7 @@ export default function PackageForm({
     } catch (error) {
       console.error(error);
 
-      await Swal.fire({
+      Swal.fire({
         icon: "error",
         title: "Terjadi Kesalahan",
         text: "Server sedang bermasalah.",
@@ -149,16 +156,20 @@ export default function PackageForm({
     >
       <div>
         <label className="mb-2 block font-medium">
-          Kecepatan (Mbps)
+          Nama Paket
+          <span className="text-red-500">
+            {" "}
+            *
+          </span>
         </label>
 
         <input
-          type="number"
-          value={speed}
+          type="text"
+          value={packageName}
           onChange={(e) =>
-            setSpeed(e.target.value)
+            setPackageName(e.target.value)
           }
-          placeholder="Contoh: 20"
+        
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -166,15 +177,30 @@ export default function PackageForm({
       <div>
         <label className="mb-2 block font-medium">
           Harga
+          <span className="text-red-500">
+            {" "}
+            *
+          </span>
         </label>
 
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
           value={price}
-          onChange={(e) =>
-            setPrice(e.target.value)
-          }
-          placeholder="Contoh: 175000"
+          onChange={(e) => {
+            const angka = e.target.value.replace(
+              /\D/g,
+              ""
+            );
+
+            setPrice(
+              angka.replace(
+                /\B(?=(\d{3})+(?!\d))/g,
+                "."
+              )
+            );
+          }}
+          
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -182,6 +208,9 @@ export default function PackageForm({
       <div>
         <label className="mb-2 block font-medium">
           Badge
+          <span className="ml-2 text-sm text-gray-400">
+            (Opsional)
+          </span>
         </label>
 
         <input
@@ -190,7 +219,6 @@ export default function PackageForm({
           onChange={(e) =>
             setBadge(e.target.value)
           }
-          placeholder="Contoh: Best Seller"
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -198,6 +226,9 @@ export default function PackageForm({
       <div>
         <label className="mb-2 block font-medium">
           Deskripsi Singkat
+          <span className="ml-2 text-sm text-gray-400">
+            (Opsional)
+          </span>
         </label>
 
         <textarea

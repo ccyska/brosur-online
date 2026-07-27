@@ -33,9 +33,7 @@ export default function PackageCard({
         {pkg.package_name}
       </h2>
 
-      <p className="mt-2 text-gray-500">
-        {pkg.speed}
-      </p>
+     
 
       <h3 className="mt-4 text-3xl font-bold text-orange-500">
         Rp {Number(pkg.price).toLocaleString("id-ID")}

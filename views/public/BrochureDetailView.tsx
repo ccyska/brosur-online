@@ -7,7 +7,7 @@ interface Package {
   id: number;
   package_name: string;
   speed: string;
-  price: number;
+  price: number | string;
   badge: string | null;
   short_description: string | null;
 }
@@ -65,12 +65,24 @@ export default function BrochureDetailView({
   }
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        Loading...
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#F5F5F5]">
+      <div className="rounded-3xl bg-white px-10 py-8 shadow-lg">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-14 w-14 animate-spin rounded-full border-[5px] border-orange-200 border-t-orange-500"></div>
+
+          <h2 className="text-lg font-semibold text-gray-700">
+            Memuat Brosur
+          </h2>
+
+          <p className="text-sm text-gray-500">
+            Mohon tunggu sebentar...
+          </p>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   if (!brochure) {
     return (
@@ -81,20 +93,17 @@ export default function BrochureDetailView({
   }
 
   return (
-    <main className="min-h-screen bg-[#F5F5F5]">
-      <div className="mx-auto max-w-md bg-white">
+    <main className="min-h-screen bg-[#F5F5F5] py-6">
+      <div className="mx-auto max-w-md overflow-hidden rounded-2xl bg-white shadow">
 
-        {/* Banner Brosur */}
-        <div className="w-full">
-          <Image
-            src={`/uploads/${brochure.image}`}
-            alt={brochure.title}
-            width={800}
-            height={1200}
-            priority
-            className="h-auto w-full"
-          />
-        </div>
+        <Image
+          src={`/uploads/${brochure.image}`}
+          alt={brochure.title}
+          width={800}
+          height={1200}
+          priority
+          className="w-full"
+        />
 
         <div className="p-6">
 
@@ -116,33 +125,41 @@ export default function BrochureDetailView({
 
           <div className="mt-8 space-y-4">
 
-            {packages.map((pkg) => (
-              <div
-                key={pkg.id}
-                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-              >
-                {pkg.badge && (
-                  <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-semibold text-white">
-                    {pkg.badge}
-                  </span>
-                )}
-
-                <h2 className="mt-3 text-xl font-bold">
-                  {pkg.package_name}
-                </h2>
-
-                <p className="mt-2 text-3xl font-bold text-orange-500">
-                  Rp{" "}
-                  {pkg.price.toLocaleString("id-ID")}
-                </p>
-
-                {pkg.short_description && (
-                  <p className="mt-3 text-sm text-gray-600">
-                    {pkg.short_description}
-                  </p>
-                )}
+            {packages.length === 0 ? (
+              <div className="rounded-xl border border-dashed p-6 text-center text-gray-500">
+                Belum ada paket.
               </div>
-            ))}
+            ) : (
+              packages.map((pkg) => (
+                <div
+                  key={pkg.id}
+                  className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+                >
+                  {pkg.badge && (
+                    <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-semibold text-white">
+                      {pkg.badge}
+                    </span>
+                  )}
+
+                  <h2 className="mt-4 text-2xl font-bold text-gray-900">
+                    {pkg.package_name}
+                  </h2>
+
+                  <p className="mt-3 text-3xl font-bold text-orange-500">
+                    Rp{" "}
+                    {Number(pkg.price)
+                      .toFixed(0)
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+                  </p>
+
+                  {pkg.short_description && (
+                    <p className="mt-3 text-sm text-gray-600">
+                      {pkg.short_description}
+                    </p>
+                  )}
+                </div>
+              ))
+            )}
 
           </div>
 

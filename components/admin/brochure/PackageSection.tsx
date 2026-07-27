@@ -18,6 +18,9 @@ export default function PackageSection({
 
   const [openModal, setOpenModal] = useState(false);
 
+  const [selectedPackageId, setSelectedPackageId] =
+    useState<number | null>(null);
+
   useEffect(() => {
     fetchPackages();
   }, [brochureId]);
@@ -50,7 +53,8 @@ export default function PackageSection({
   }
 
   function handleEdit(id: number) {
-    console.log("Edit Package:", id);
+    setSelectedPackageId(id);
+    setOpenModal(true);
   }
 
   async function handleDelete(id: number) {
@@ -132,7 +136,10 @@ export default function PackageSection({
           </div>
 
           <button
-            onClick={() => setOpenModal(true)}
+            onClick={() => {
+              setSelectedPackageId(null);
+              setOpenModal(true);
+            }}
             className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white transition hover:bg-orange-600"
           >
             + Tambah Package
@@ -159,11 +166,13 @@ export default function PackageSection({
 
       <PackageModal
         open={openModal}
+        brochureId={brochureId}
+        packageId={selectedPackageId}
         onClose={() => {
           setOpenModal(false);
+          setSelectedPackageId(null);
           fetchPackages();
         }}
-        brochureId={brochureId}
       />
     </>
   );
