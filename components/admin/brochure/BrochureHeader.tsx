@@ -16,7 +16,7 @@ export default function BrochureHeader() {
 
       <Link
         href="/admin/brochures/create"
-        className="flex items-center gap-2 rounded-xl bg-[#FF8A00] px-5 py-3 font-medium text-white transition hover:bg-[#e67a00]"
+        className="flex items-center gap-2 rounded-xl bg-[#F5A000] px-5 py-3 font-medium text-white transition"
       >
         <Plus size={20} />
         Add Brochure

@@ -10,16 +10,15 @@ interface Props {
   brochureId: number;
 }
 
-export default function PackageSection({
-  brochureId,
-}: Props) {
+export default function PackageSection({ brochureId }: Props) {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [openModal, setOpenModal] = useState(false);
 
-  const [selectedPackageId, setSelectedPackageId] =
-    useState<number | null>(null);
+  const [selectedPackageId, setSelectedPackageId] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     fetchPackages();
@@ -29,9 +28,7 @@ export default function PackageSection({
     try {
       setLoading(true);
 
-      const response = await fetch(
-        `/api/packages?brochureId=${brochureId}`
-      );
+      const response = await fetch(`/api/packages?brochureId=${brochureId}`);
 
       const result = await response.json();
 
@@ -72,12 +69,9 @@ export default function PackageSection({
     if (!confirm.isConfirmed) return;
 
     try {
-      const response = await fetch(
-        `/api/packages/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`/api/packages/${id}`, {
+        method: "DELETE",
+      });
 
       const result = await response.json();
 
@@ -126,13 +120,9 @@ export default function PackageSection({
       <section className="rounded-2xl bg-white p-8 shadow-sm">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">
-              Package
-            </h2>
+            <h2 className="text-2xl font-bold">Package</h2>
 
-            <p className="text-gray-500">
-              Kelola paket untuk brosur ini
-            </p>
+            <p className="text-gray-500">Kelola paket untuk brosur ini</p>
           </div>
 
           <button
@@ -140,7 +130,7 @@ export default function PackageSection({
               setSelectedPackageId(null);
               setOpenModal(true);
             }}
-            className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white transition hover:bg-orange-600"
+            className="rounded-xl bg-[#F5A000] px-5 py-3 font-semibold text-white transition hover:bg-orange-600"
           >
             + Tambah Package
           </button>

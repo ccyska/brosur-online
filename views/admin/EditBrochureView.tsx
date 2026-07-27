@@ -13,7 +13,7 @@ interface Brochure {
   slug: string;
   image: string;
   short_description: string | null;
-  description: string |null;
+  description: string | null;
 }
 
 export default function EditBrochureView() {
@@ -26,17 +26,13 @@ export default function EditBrochureView() {
   const [title, setTitle] = useState("");
   const [image, setImage] = useState("");
 
-  const [shortDescription, setShortDescription] =
-    useState("");
+  const [shortDescription, setShortDescription] = useState("");
 
-  const [description, setDescription] =
-    useState("");
+  const [description, setDescription] = useState("");
 
-  const [newImage, setNewImage] =
-    useState<File | null>(null);
+  const [newImage, setNewImage] = useState<File | null>(null);
 
-  const [previewUrl, setPreviewUrl] =
-    useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
 
   useEffect(() => {
     fetchBrochure();
@@ -44,9 +40,7 @@ export default function EditBrochureView() {
 
   async function fetchBrochure() {
     try {
-      const response = await fetch(
-        `/api/brochures/${id}`
-      );
+      const response = await fetch(`/api/brochures/${id}`);
 
       const result = await response.json();
 
@@ -61,19 +55,14 @@ export default function EditBrochureView() {
         return;
       }
 
-      const brochure: Brochure =
-        result.data;
+      const brochure: Brochure = result.data;
 
       setTitle(brochure.title);
       setImage(brochure.image);
 
-      setShortDescription(
-        brochure.short_description ?? ""
-      );
+      setShortDescription(brochure.short_description ?? "");
 
-      setDescription(
-        brochure.description ?? ""
-      );
+      setDescription(brochure.description ?? "");
     } catch (error) {
       console.error(error);
 
@@ -88,20 +77,12 @@ export default function EditBrochureView() {
     }
   }
 
-  function handleImageChange(
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const file =
-      e.target.files?.[0];
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
 
     if (!file) return;
 
-    const allowed = [
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-      "image/webp",
-    ];
+    const allowed = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 
     if (!allowed.includes(file.type)) {
       Swal.fire({
@@ -115,20 +96,14 @@ export default function EditBrochureView() {
     }
 
     if (previewUrl) {
-      URL.revokeObjectURL(
-        previewUrl
-      );
+      URL.revokeObjectURL(previewUrl);
     }
 
     setNewImage(file);
-    setPreviewUrl(
-      URL.createObjectURL(file)
-    );
+    setPreviewUrl(URL.createObjectURL(file));
   }
 
-  async function handleSubmit(
-    e: React.FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!title.trim()) {
@@ -148,29 +123,18 @@ export default function EditBrochureView() {
       let imageName = image;
 
       if (newImage) {
-        const formData =
-          new FormData();
+        const formData = new FormData();
 
-        formData.append(
-          "file",
-          newImage
-        );
+        formData.append("file", newImage);
 
-        const upload =
-          await fetch(
-            "/api/upload",
-            {
-              method: "POST",
-              body: formData,
-            }
-          );
+        const upload = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-        const uploadResult =
-          await upload.json();
+        const uploadResult = await upload.json();
 
-        if (
-          !uploadResult.success
-        ) {
+        if (!uploadResult.success) {
           await Swal.fire({
             icon: "error",
             title: "Upload Gagal",
@@ -181,36 +145,26 @@ export default function EditBrochureView() {
           return;
         }
 
-        imageName =
-          uploadResult.filename;
+        imageName = uploadResult.filename;
       }
 
       const body = {
         title,
         image: imageName,
-        short_description:
-          shortDescription,
+        short_description: shortDescription,
         description,
       };
 
-      const response =
-        await fetch(
-          `/api/brochures/${id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body: JSON.stringify(
-              body
-            ),
-          }
-        );
+      const response = await fetch(`/api/brochures/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
 
-      const result =
-        await response.json();
-              if (!result.success) {
+      const result = await response.json();
+      if (!result.success) {
         await Swal.fire({
           icon: "error",
           title: "Update Gagal",
@@ -246,131 +200,79 @@ export default function EditBrochureView() {
   }
 
   if (loading) {
-    return (
-      <div className="rounded-2xl bg-white p-8">
-        Loading...
-      </div>
-    );
+    return <div className="rounded-2xl bg-white p-8">Loading...</div>;
   }
 
-  const displayImage =
-    previewUrl ||
-    `/uploads/${image}`;
+  const displayImage = previewUrl || `/uploads/${image}`;
 
   return (
     <div className="space-y-8">
-
       <div>
+        <h1 className="text-3xl font-bold">Edit Brochure</h1>
 
-        <h1 className="text-3xl font-bold">
-          Edit Brochure
-        </h1>
-
-        <p className="text-gray-500">
-          Perbarui informasi brosur.
-        </p>
-
+        <p className="text-gray-500">Perbarui informasi brosur.</p>
       </div>
 
       <form
         onSubmit={handleSubmit}
         className="space-y-6 rounded-2xl bg-white p-8 shadow-sm"
       >
-
         <div>
-
-          <label className="mb-2 block font-medium">
-            Image
-          </label>
+          <label className="mb-2 block font-medium">Image</label>
 
           <div className="relative mb-4 h-56 w-full overflow-hidden rounded-xl border">
-
             <Image
               src={displayImage}
               alt={title}
               fill
               className="object-cover"
             />
-
           </div>
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-
+          <input type="file" accept="image/*" onChange={handleImageChange} />
         </div>
 
         <div>
-
-          <label className="mb-2 block font-medium">
-            Title
-          </label>
+          <label className="mb-2 block font-medium">Title</label>
 
           <input
             type="text"
             value={title}
-            onChange={(e) =>
-              setTitle(e.target.value)
-            }
+            onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded-xl border p-3"
           />
-
         </div>
 
         <div>
-
-          <label className="mb-2 block font-medium">
-            Short Description
-          </label>
+          <label className="mb-2 block font-medium">Short Description</label>
 
           <textarea
             rows={3}
             value={shortDescription}
-            onChange={(e) =>
-              setShortDescription(
-                e.target.value
-              )
-            }
+            onChange={(e) => setShortDescription(e.target.value)}
             className="w-full rounded-xl border p-3"
           />
-
         </div>
 
         <div>
-
-          <label className="mb-2 block font-medium">
-            Description
-          </label>
+          <label className="mb-2 block font-medium">Description</label>
 
           <textarea
             rows={5}
             value={description}
-            onChange={(e) =>
-              setDescription(
-                e.target.value
-              )
-            }
+            onChange={(e) => setDescription(e.target.value)}
             className="w-full rounded-xl border p-3"
           />
-
         </div>
 
         <button
           type="submit"
           disabled={saving}
-          className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:bg-gray-400"
+          className="rounded-xl bg-[#F5A000] px-6 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:bg-gray-400"
         >
-          {saving
-            ? "Updating..."
-            : "Update Brochure"}
+          {saving ? "Updating..." : "Update Brochure"}
         </button>
-
       </form>
-
-    
-
     </div>
   );
 }

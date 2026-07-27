@@ -55,7 +55,7 @@ export default function BrochureCard({
 
           <Link
             href={`/admin/brochures/${brochure.id}`}
-            className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3 font-semibold text-white transition hover:bg-orange-600"
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#F5A000]  py-3 font-semibold text-white transition hover:bg-orange-600"
           >
             <Package size={18} />
             Kelola Paket

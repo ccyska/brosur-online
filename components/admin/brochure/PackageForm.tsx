@@ -9,18 +9,13 @@ interface Props {
   onClose: () => void;
 }
 
-export default function PackageForm({
-  brochureId,
-  packageId,
-  onClose,
-}: Props) {
+export default function PackageForm({ brochureId, packageId, onClose }: Props) {
   const [loading, setLoading] = useState(false);
 
   const [packageName, setPackageName] = useState("");
   const [price, setPrice] = useState("");
   const [badge, setBadge] = useState("");
-  const [shortDescription, setShortDescription] =
-    useState("");
+  const [shortDescription, setShortDescription] = useState("");
 
   useEffect(() => {
     if (packageId) {
@@ -30,9 +25,7 @@ export default function PackageForm({
 
   async function fetchPackage() {
     try {
-      const response = await fetch(
-        `/api/packages/${packageId}`
-      );
+      const response = await fetch(`/api/packages/${packageId}`);
 
       const result = await response.json();
 
@@ -42,15 +35,11 @@ export default function PackageForm({
 
       setPackageName(data.package_name ?? "");
 
-      setPrice(
-        Number(data.price).toLocaleString("id-ID")
-      );
+      setPrice(Number(data.price).toLocaleString("id-ID"));
 
       setBadge(data.badge ?? "");
 
-      setShortDescription(
-        data.short_description ?? ""
-      );
+      setShortDescription(data.short_description ?? "");
     } catch (error) {
       console.error(error);
 
@@ -63,15 +52,10 @@ export default function PackageForm({
     }
   }
 
-  async function handleSubmit(
-    e: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (
-      packageName.trim() === "" ||
-      price.trim() === ""
-    ) {
+    if (packageName.trim() === "" || price.trim() === "") {
       Swal.fire({
         icon: "warning",
         title: "Data Belum Lengkap",
@@ -91,22 +75,19 @@ export default function PackageForm({
         speed: packageName,
         price: Number(price.replace(/\./g, "")),
         badge: badge.trim() || null,
-        short_description:
-          shortDescription.trim() || null,
+        short_description: shortDescription.trim() || null,
         description: null,
       };
 
       const response = await fetch(
-        packageId
-          ? `/api/packages/${packageId}`
-          : "/api/packages",
+        packageId ? `/api/packages/${packageId}` : "/api/packages",
         {
           method: packageId ? "PUT" : "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
-        }
+        },
       );
 
       const result = await response.json();
@@ -114,9 +95,7 @@ export default function PackageForm({
       if (!result.success) {
         Swal.fire({
           icon: "error",
-          title: packageId
-            ? "Update Gagal"
-            : "Tambah Gagal",
+          title: packageId ? "Update Gagal" : "Tambah Gagal",
           text: result.message,
           confirmButtonColor: "#ef4444",
         });
@@ -126,9 +105,7 @@ export default function PackageForm({
 
       Swal.fire({
         icon: "success",
-        title: packageId
-          ? "Berhasil Diupdate"
-          : "Berhasil Ditambahkan",
+        title: packageId ? "Berhasil Diupdate" : "Berhasil Ditambahkan",
         text: result.message,
         timer: 1500,
         showConfirmButton: false,
@@ -150,26 +127,17 @@ export default function PackageForm({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-5"
-    >
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label className="mb-2 block font-medium">
           Nama Paket
-          <span className="text-red-500">
-            {" "}
-            *
-          </span>
+          <span className="text-red-500"> *</span>
         </label>
 
         <input
           type="text"
           value={packageName}
-          onChange={(e) =>
-            setPackageName(e.target.value)
-          }
-        
+          onChange={(e) => setPackageName(e.target.value)}
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -177,10 +145,7 @@ export default function PackageForm({
       <div>
         <label className="mb-2 block font-medium">
           Harga
-          <span className="text-red-500">
-            {" "}
-            *
-          </span>
+          <span className="text-red-500"> *</span>
         </label>
 
         <input
@@ -188,19 +153,10 @@ export default function PackageForm({
           inputMode="numeric"
           value={price}
           onChange={(e) => {
-            const angka = e.target.value.replace(
-              /\D/g,
-              ""
-            );
+            const angka = e.target.value.replace(/\D/g, "");
 
-            setPrice(
-              angka.replace(
-                /\B(?=(\d{3})+(?!\d))/g,
-                "."
-              )
-            );
+            setPrice(angka.replace(/\B(?=(\d{3})+(?!\d))/g, "."));
           }}
-          
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -208,17 +164,13 @@ export default function PackageForm({
       <div>
         <label className="mb-2 block font-medium">
           Badge
-          <span className="ml-2 text-sm text-gray-400">
-            (Opsional)
-          </span>
+          <span className="ml-2 text-sm text-gray-400">(Opsional)</span>
         </label>
 
         <input
           type="text"
           value={badge}
-          onChange={(e) =>
-            setBadge(e.target.value)
-          }
+          onChange={(e) => setBadge(e.target.value)}
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -226,19 +178,13 @@ export default function PackageForm({
       <div>
         <label className="mb-2 block font-medium">
           Deskripsi Singkat
-          <span className="ml-2 text-sm text-gray-400">
-            (Opsional)
-          </span>
+          <span className="ml-2 text-sm text-gray-400">(Opsional)</span>
         </label>
 
         <textarea
           rows={3}
           value={shortDescription}
-          onChange={(e) =>
-            setShortDescription(
-              e.target.value
-            )
-          }
+          onChange={(e) => setShortDescription(e.target.value)}
           className="w-full rounded-xl border p-3"
         />
       </div>
@@ -255,13 +201,9 @@ export default function PackageForm({
         <button
           type="submit"
           disabled={loading}
-          className="rounded-xl bg-orange-500 px-5 py-2 font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+          className="rounded-xl bg-[#F5A000] px-5 py-2 font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
         >
-          {loading
-            ? "Menyimpan..."
-            : packageId
-            ? "Update"
-            : "Simpan"}
+          {loading ? "Menyimpan..." : packageId ? "Update" : "Simpan"}
         </button>
       </div>
     </form>

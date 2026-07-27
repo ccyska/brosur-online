@@ -3,8 +3,7 @@ import { Plus } from "lucide-react";
 
 export default function WelcomeCard() {
   return (
-    <div className="rounded-[28px] bg-[#F5A000] p-8 text-[#1E1E1E] shadow-lg">
-
+    <div className="rounded-[28px]  bg-[#F5A000]0p-8 text-[#1E1E1E] shadow-lg">
       <h2 className="text-[40px] font-bold leading-tight">
         Publish New
         <br />
@@ -12,8 +11,7 @@ export default function WelcomeCard() {
       </h2>
 
       <p className="mt-5 text-[17px] leading-8 text-[#4E3B14]">
-        Update your catalog with the latest
-        fiber optics packages and
+        Update your catalog with the latest fiber optics packages and
         promotional offers.
       </p>
 
@@ -24,7 +22,6 @@ export default function WelcomeCard() {
         <Plus size={24} className="mr-2" />
         Add Brochure
       </Link>
-
     </div>
   );
 }

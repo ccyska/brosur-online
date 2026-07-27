@@ -11,19 +11,13 @@ export default function BrochureForm() {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
-  const [shortDescription, setShortDescription] =
-    useState("");
-  const [description, setDescription] =
-    useState("");
-  const [image, setImage] =
-    useState<File | null>(null);
+  const [shortDescription, setShortDescription] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState<File | null>(null);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(
-    e: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!title.trim()) {
@@ -47,16 +41,12 @@ export default function BrochureForm() {
         const formData = new FormData();
         formData.append("file", image);
 
-        const uploadResponse = await fetch(
-          "/api/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-        const uploadResult =
-          await uploadResponse.json();
+        const uploadResult = await uploadResponse.json();
 
         if (!uploadResult.success) {
           await Swal.fire({
@@ -73,26 +63,20 @@ export default function BrochureForm() {
       }
 
       // Simpan brosur
-      const response = await fetch(
-        "/api/brochures",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            title,
-            image: imageName,
-            short_description:
-              shortDescription,
-            description,
-          }),
-        }
-      );
+      const response = await fetch("/api/brochures", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          image: imageName,
+          short_description: shortDescription,
+          description,
+        }),
+      });
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!result.success) {
         await Swal.fire({
@@ -140,9 +124,7 @@ export default function BrochureForm() {
         name="title"
         placeholder="Masukkan judul brosur"
         value={title}
-        onChange={(e) =>
-          setTitle(e.target.value)
-        }
+        onChange={(e) => setTitle(e.target.value)}
       />
 
       <FormInput
@@ -150,35 +132,23 @@ export default function BrochureForm() {
         name="shortDescription"
         placeholder="Masukkan deskripsi singkat"
         value={shortDescription}
-        onChange={(e) =>
-          setShortDescription(
-            e.target.value
-          )
-        }
+        onChange={(e) => setShortDescription(e.target.value)}
       />
 
       <div className="space-y-2">
-        <label className="font-medium text-gray-700">
-          Description
-        </label>
+        <label className="font-medium text-gray-700">Description</label>
 
         <textarea
           rows={5}
           value={description}
-          onChange={(e) =>
-            setDescription(
-              e.target.value
-            )
-          }
+          onChange={(e) => setDescription(e.target.value)}
           className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-orange-500"
         />
       </div>
 
       <ImageUpload
         onChange={(e) => {
-          const file =
-            e.target.files?.[0] ??
-            null;
+          const file = e.target.files?.[0] ?? null;
 
           setImage(file);
         }}
@@ -187,11 +157,9 @@ export default function BrochureForm() {
       <button
         type="submit"
         disabled={loading}
-        className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:bg-gray-400"
+        className="rounded-xl bg-[#F5A000] px-6 py-3 font-semibold text-white transition hover:bg-orange-300 disabled:bg-gray-400"
       >
-        {loading
-          ? "Saving..."
-          : "Save Brochure"}
+        {loading ? "Saving..." : "Save Brochure"}
       </button>
     </form>
   );
