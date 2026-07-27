@@ -6,72 +6,91 @@ interface Brochure {
   slug: string;
   image: string;
   short_description: string | null;
-  description: string | null;
+  description: string |null;
 }
-
 
 export default class BrochureRepository {
 
-
   static async getAll() {
-
     const [rows] = await db.query(
-      "SELECT * FROM brochures ORDER BY id DESC"
+      `
+      SELECT *
+      FROM brochures
+      ORDER BY id DESC
+      `
     );
 
     return rows as Brochure[];
-
   }
 
-
-
   static async getById(id: number) {
-
     const [rows] = await db.query(
-      "SELECT * FROM brochures WHERE id = ? LIMIT 1",
+      `
+      SELECT *
+      FROM brochures
+      WHERE id = ?
+      LIMIT 1
+      `,
       [id]
     );
 
     const brochures = rows as Brochure[];
 
     return brochures[0] ?? null;
-
   }
 
-
-
   static async getBySlug(slug: string) {
-
     const [rows] = await db.query(
-      "SELECT * FROM brochures WHERE slug = ? LIMIT 1",
+      `
+      SELECT *
+      FROM brochures
+      WHERE slug = ?
+      LIMIT 1
+      `,
       [slug]
     );
 
     const brochures = rows as Brochure[];
 
-    return brochures[0] ?? null;
+    const brochure = brochures[0] ?? null;
 
+    if (!brochure) {
+      return null;
+    }
+
+    // Tambahkan view setiap kali brosur dibuka
+    await db.query(
+      `
+      INSERT INTO page_views
+      (
+        brochure_id,
+        viewed_at
+      )
+      VALUES
+      (
+        ?,
+        NOW()
+      )
+      `,
+      [brochure.id]
+    );
+
+    return brochure;
   }
 
-
-
   static async search(keyword: string) {
-
     const [rows] = await db.query(
       `
-      SELECT * FROM brochures
+      SELECT *
+      FROM brochures
       WHERE title LIKE ?
       ORDER BY id DESC
       `,
       [`%${keyword}%`]
     );
 
-
     return rows as Brochure[];
-
   }
-
-
 
   static async create(data: {
     title: string;
@@ -80,8 +99,6 @@ export default class BrochureRepository {
     short_description: string | null;
     description: string | null;
   }) {
-
-
     const [result] = await db.query(
       `
       INSERT INTO brochures
@@ -92,7 +109,14 @@ export default class BrochureRepository {
         short_description,
         description
       )
-      VALUES (?, ?, ?, ?, ?)
+      VALUES
+      (
+        ?,
+        ?,
+        ?,
+        ?,
+        ?
+      )
       `,
       [
         data.title,
@@ -103,12 +127,8 @@ export default class BrochureRepository {
       ]
     );
 
-
     return result;
-
   }
-
-
 
   static async update(
     id: number,
@@ -120,8 +140,6 @@ export default class BrochureRepository {
       description: string | null;
     }
   ) {
-
-
     const [result] = await db.query(
       `
       UPDATE brochures
@@ -143,25 +161,18 @@ export default class BrochureRepository {
       ]
     );
 
-
     return result;
-
   }
-
-
 
   static async delete(id: number) {
-
-
     const [result] = await db.query(
-      "DELETE FROM brochures WHERE id = ?",
+      `
+      DELETE FROM brochures
+      WHERE id = ?
+      `,
       [id]
     );
-
-
+    
     return result;
-
-  }
-
-
-}
+  };
+};
